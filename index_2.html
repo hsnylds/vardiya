@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#070b13">
+  <meta name="description"
+    content="Risk Laboratuvarı – Güvenliği Sen Yönet: Vardiyayı güvenle tamamlamak için interaktif görsel ve sesli brifing simülasyonu.">
+  <title>Risk Laboratuvarı – Güvenliği Sen Yönet</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ========================================================
+       1. PORTRAIT / DİKEY EKRAN UYARI KATMANI (OVERLAY)
+       Telefon dikey konuma getirildiğinde asıl içerik gizlenir
+       ve bu tam ekran uyarı katmanı devreye girer.
+       ======================================================== -->
+  <section id="orientation-overlay" class="orientation-overlay" aria-live="polite">
+    <div class="overlay-backdrop"></div>
+    <div class="overlay-content">
+
+      <!-- 90 Derece Dönen Telefon İkon Animasyonu -->
+      <div class="phone-rotate-wrapper">
+        <div class="glow-ring"></div>
+        <svg class="phone-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Döndürme Kılavuz Yayı -->
+          <path class="rotate-arrow" d="M22 36 A 32 32 0 0 1 78 36" stroke="url(#cyanGrad)" stroke-width="3"
+            stroke-linecap="round" stroke-dasharray="4 4" />
+          <path class="arrow-head" d="M74 26 L82 36 L70 40" fill="#38bdf8" />
+
+          <!-- Telefon Gövdesi -->
+          <rect class="phone-body" x="34" y="20" width="32" height="60" rx="6" stroke="#38bdf8" stroke-width="2.5"
+            fill="rgba(15, 23, 42, 0.9)" />
+          <!-- Telefon Ekranı -->
+          <rect class="phone-screen" x="38" y="27" width="24" height="46" rx="2" fill="rgba(56, 189, 248, 0.2)" />
+          <!-- Ahize Çizgisi -->
+          <line x1="46" y1="23.5" x2="54" y2="23.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+          <!-- Ekran Merkez Noktası -->
+          <circle cx="50" cy="50" r="3.5" fill="#38bdf8" />
+        </svg>
+        <defs>
+          <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#06b6d4" />
+            <stop offset="100%" stop-color="#38bdf8" />
+          </linearGradient>
+        </defs>
+      </div>
+
+      <!-- Rozet -->
+      <div class="lab-badge">
+        <span class="pulse-dot"></span>
+        <span>RİSK LABORATUVARI – GÜVENLİĞİ SEN YÖNET</span>
+      </div>
+
+      <!-- Kullanıcının İstediği Uyarı Mesajı -->
+      <h2 class="overlay-title">Cihazınızı Yatay Konuma Getirin</h2>
+      <p class="overlay-desc">
+        Lütfen devam etmek için cihazınızı yatay konuma getirin.
+      </p>
+
+      <p class="overlay-subnote">
+        Laboratuvar simülasyonu, karakter animasyonu ve ses entegrasyonu yalnızca <strong>Yatay (Landscape)</strong>
+        modda çalışacak şekilde optimize edilmiştir.
+      </p>
+
+      <!-- Masaüstü Test / Önizleme ve Mobil Tam Ekran Butonları -->
+      <div class="overlay-btn-group">
+        <button id="btn-overlay-fullscreen" class="btn-overlay-fs" title="Tam Ekrana Geç ve Başlat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+          <span>Tam Ekrana Geç ve Başlat</span>
+        </button>
+
+        <button id="btn-force-landscape" class="btn-preview-mode" title="Masaüstü test modu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+          <span>Önizleme Moduna Zorla (Test)</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================
+       2. ANA SAHNE (MAIN STAGE) - YALNIZCA YATAY MODDA ÇALIŞIR
+       Ekranda hiçbir şekilde konuşma balonu veya metin yoktur.
+       ======================================================== -->
+  <main id="main-stage" class="main-stage">
+
+    <!-- Tam Ekran Laboratuvar Arka Planı (Cover) -->
+    <div class="lab-bg-wrapper">
+      <img src="img/laboratuvar_arkaplan.png" alt="Laboratuvar Arka Planı" class="lab-bg-image" id="lab-bg-img" />
+      <div class="lab-ambient-overlay"></div>
+      <div class="lab-vignette"></div>
+      <div class="lab-scanlines"></div>
+    </div>
+
+    <!-- ========================================================
+         ÜST BAŞLIK (HEADER / BANNER) ÇUBUĞU - TAM GENİŞLİK
+         Risk Laboratuvarı – Güvenliği Sen Yönet
+         ======================================================== -->
+    <header class="top-banner-header" id="top-banner-header" role="banner">
+      <div class="banner-shimmer"></div>
+      <div class="banner-grid-overlay"></div>
+      
+      <div class="banner-inner">
+        <!-- Sol: Deney Tüpü / Laboratuvar İkonu -->
+        <div class="banner-left-box" id="banner-left-box">
+          <div class="banner-icon-box" title="Laboratuvar Güvenliği">
+            <svg class="banner-lab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2v7.31L4.69 18.5a2 2 0 0 0 1.7 3.5h11.22a2 2 0 0 0 1.7-3.5L14 9.31V2"></path>
+              <path d="M8.5 2h7"></path>
+              <path d="M14 9.3a6.5 6.5 0 0 0-4 0"></path>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+              <circle cx="10" cy="18" r="0.8" fill="currentColor"></circle>
+              <circle cx="13.5" cy="17.2" r="0.6" fill="currentColor"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Merkez: Ana Başlık Metni -->
+        <div class="banner-center-title">
+          <h1 class="banner-main-title" id="banner-main-title">Risk Laboratuvarı – Güvenliği Sen Yönet</h1>
+        </div>
+
+        <!-- Sağ: Güvenlik Protokolü Durum Rozeti (Kırmızı Tema) -->
+        <div class="banner-side-badge banner-badge-right">
+          <span class="banner-pulse-dot"></span>
+          <svg class="banner-shield-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="banner-side-label">GÜVENLİK PROTOKOLÜ</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- HUD / Kontrol & Durum Çubuğu -->
+    <div class="simulation-hud" role="toolbar" aria-label="Simülasyon Kontrolleri">
+      <div class="hud-left">
+        <div class="hud-chip">
+          <span class="chip-dot"></span>
+          <span class="chip-text">CANLI SİMÜLASYON</span>
+        </div>
+
+        <!-- Ses Çalarken Çalışan Fütüristik Ekolayzer Çubuğu -->
+        <div class="audio-equalizer" id="audio-equalizer" title="Ses İletimi">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+          <span class="bar bar-4"></span>
+          <span class="bar bar-5"></span>
+          <span class="audio-status-label" id="audio-status-label">SES BEKLENİYOR</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <!-- Ses Aç/Kapat -->
+        <button id="btn-audio-toggle" class="hud-btn" title="Sesi Aç/Kapat" aria-label="Sesi Aç/Kapat">
+          <svg id="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="icon-sound-off" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Yeniden Oynat (Animasyon + Ses Baştan Başlar) -->
+        <button id="btn-replay" class="hud-btn" title="Simülasyonu Yeniden Başlat" aria-label="Yeniden Başlat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+
+        <!-- Tam Ekran Modu (Mobilde tam yatay deneyim için) -->
+        <button id="btn-fullscreen" class="hud-btn" title="Tam Ekran" aria-label="Tam Ekran">
+          <svg id="icon-fs-enter" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+          <svg id="icon-fs-exit" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sahne İçi Görsel Katman -->
+    <div class="stage-view">
+
+      <!-- SOL TARAF: Ortak Kapsayıcı (Öğretmen ve Konuşma Balonu) -->
+      <div class="character-container" id="character-wrapper">
+        <div class="character-shadow"></div>
+        <img src="img/kadin.png" alt="Laboratuvar Güvenlik Sorumlusu Kadın Karakter" class="character-image"
+          id="character-img" />
+
+        <!-- SESLENDİRME İLE UYUMLU DAKTİLO (TYPEWRITER) BULUT FORMUNDA DÜŞÜNCE BALONU (THOUGHT BUBBLE) -->
+        <div class="speech-bubble-container calm-speech-bubble comic-cloud-container" id="speech-bubble" aria-live="polite">
+          <!-- Kenarları Kavisli Bulut Formunda Düşünce Balonu ve 3 Adet Kademeli Küçülen Bağlantı Dairesi -->
+          <svg class="cloud-svg-bg speech-svg-bg" viewBox="0 0 520 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <filter id="thoughtBubbleShadow" x="-10%" y="-10%" width="124%" height="128%">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35" />
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.25" />
+              </filter>
+              <linearGradient id="thoughtBubbleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="90%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#f8fafc" />
+              </linearGradient>
+            </defs>
+
+            <!-- Ana Bulut Gövdesi (Kavisli Pofuduk Bulut Kenarları) -->
+            <path class="thought-cloud-path"
+              d="M 150 28
+                 A 44 38 0 0 1 230 15
+                 A 52 42 0 0 1 320 15
+                 A 48 40 0 0 1 405 22
+                 A 44 38 0 0 1 472 48
+                 A 40 40 0 0 1 506 95
+                 A 42 42 0 0 1 482 142
+                 A 46 40 0 0 1 415 162
+                 A 50 42 0 0 1 325 164
+                 A 48 40 0 0 1 235 162
+                 A 44 40 0 0 1 160 152
+                 A 42 42 0 0 1 106 128
+                 A 40 40 0 0 1 88 82
+                 A 42 42 0 0 1 114 42
+                 A 40 38 0 0 1 150 28
+                 Z"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- Düşünce İzi: Ana Balondan Karakterin Kafasına Doğru İnen 3 Kademeli Bağlantı Dairesi -->
+            <!-- 3. Daire: En Büyük Daire (Bulut balonun hemen altında) -->
+            <circle cx="102" cy="174" r="14"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3.5"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- 2. Daire: Orta Boy Daire (Ara geçiş dairesi) -->
+            <circle cx="72" cy="196" r="9.5"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- 1. Daire: En Küçük Daire (Karakterin kafasına/alın bölgesine en yakın başlangıç noktası) -->
+            <circle cx="46" cy="216" r="6"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="2.5"
+              filter="url(#thoughtBubbleShadow)" />
+          </svg>
+
+          <!-- Balon İçi Daktilo Metni (Bulut Formunun Tam Merkezine Hizalanmış) -->
+          <div class="cloud-content speech-content">
+            <div class="speech-text-wrap">
+              <span class="speech-text" id="speech-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           ORTAK EYLEM BUTONLARI TAŞIYICISI (CSS GRID YÖNTEMİ)
+           - 'Vardiyaya Başla', 'Vardiyayı Planla' ve 'Planımı Onayla' butonları
+             aynı kutu (.action-buttons-carrier / .buton-tasiyici) içerisine alınmıştır.
+           - CSS Grid (grid-area: 1 / 1) ile her üç buton da ekranda BİREBİR AYNI KOORDİNATA sabitlenir.
+           - 'Vardiyayı Planla' tıklandığında o buton gizlenir ve tam aynı yerde 'Planımı Onayla' belirir.
+           - Sayfa düzeni (layout) hiçbir şekilde bozulmaz; ikinci buton ilkinin fiziksel alanını birebir devralır.
+           ======================================================== -->
+      <div class="action-buttons-carrier buton-tasiyici" id="action-buttons-carrier" aria-live="polite">
+        <!-- 1. Buton: Vardiyaya Başla (Konuşma bitiminde beliren ilk buton) -->
+        <div class="shift-action-container islem-butonu-kapsayici" id="shift-action-container">
+          <button id="btn-shift-action" class="btn-shift-action islem-butonu" type="button" aria-label="Vardiyaya Başla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">Vardiyaya Başla</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 2. Buton: Vardiyayı Planla (Tezgah açıldığında beliren buton) -->
+        <div class="plan-shift-container islem-butonu-kapsayici" id="plan-shift-container">
+          <button id="btn-plan-shift" class="btn-shift-action btn-plan-shift islem-butonu" type="button" aria-label="Vardiyayı Planla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">VARDİYAYI PLANLA</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 3. Buton: Planımı Onayla (Planlama aşamasında aynı yerde beliren onay butonu) -->
+        <div class="confirm-plan-container islem-butonu-kapsayici" id="confirm-plan-container">
+          <button id="btn-confirm-plan" class="btn-shift-action btn-confirm-plan islem-butonu" type="button" aria-label="Planımı Onayla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">PLANIMI ONAYLA</span>
+            </div>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ========================================================
+           ANA KAPSAYICI (MAIN ROW CONTAINER)
+           Orta alanı düzenlemek için yatay (horizontal) ana kapsayıcı.
+           Elemanların dikeyde aynı boyuta uzamasını sağlamak için yüksekliği eşitler (align-items: stretch).
+           ======================================================== -->
+      <section class="main-row-container" id="main-row-container" aria-label="Simülasyon Çalışma ve Görev Alanı">
+
+        <!-- ========================================================
+             TEZGAH ÇERÇEVESİ (SOL KUTU)
+             'Bugünkü Vardiya' başlığını ve laboratuvar tezgahı görselini
+             kendi içinde bir çerçeve (container) içine alır.
+             Yuvarlatılmış köşeler ve hafif arka plan rengi eklenmiştir.
+             ======================================================== -->
+        <div class="sim-panel-card workbench-panel" id="workbench-container" aria-label="Bugünkü Vardiya Tezgahı">
+          <!-- Sol Kutu Başlığı: Bugünkü Vardiya -->
+          <div class="panel-header">
+            <div class="panel-header-badge">
+              <span class="panel-badge-dot"></span>
+              <h2 class="panel-header-title">Bugünkü Vardiya</h2>
+            </div>
+            <span class="panel-pill">ÇALIŞMA ALANI</span>
+          </div>
+
+          <!-- Laboratuvar Tezgahı Görsel Alanı -->
+          <div class="workbench-display-wrapper">
+            <div class="workbench-card-glow"></div>
+            <div class="workbench-floor-shadow"></div>
+            <img src="img/tezgah.png" alt="Laboratuvar Çalışma Tezgahı" class="workbench-image" id="workbench-img" draggable="false" />
+          </div>
+        </div>
+
+<!-- ========================================================
+             BUTONLAR ÇERÇEVESİ (SAĞ KUTU)
+             Sağ tarafta alt alta dizili olan 4 adet görevi barındırır.
+             Tasarım stili Sol Kutu ile birebir aynıdır (Simetri ve Hizalama).
+             ======================================================== -->
+        <aside class="sim-panel-card task-menu-panel" id="task-menu-container" aria-label="Laboratuvar Görev Menüsü">
+          <!-- Sağ Kutu Başlığı -->
+          <div class="panel-header">
+            <div class="panel-header-badge">
+              <span class="panel-badge-dot"></span>
+              <h2 class="panel-header-title">Görevler ve Protokoller</h2>
+            </div>
+            <span class="panel-pill">4 İŞLEM</span>
+          </div>
+
+          <!-- Dikey 4 Adet Görev Butonu Listesi (Yatay Kart Şablonu) -->
+          <div class="task-buttons-list">
+            <!-- 1. Buton: Çözelti Hazırla -->
+            <button class="task-menu-btn" id="task-btn-1" type="button" aria-label="Çözelti Hazırla">
+              <!-- İkon Alanı (En Sol): Açık mavi/gri tonlarında ince çizgili pano/kontrol listesi ikonu -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı: İkonun hemen sağında kare formatında thumbnail -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_cozelti.png" alt="Çözelti Hazırla" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı (Orta): Kalın lacivert başlık ve ince gri açıklama -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Çözelti Hazırla</h3>
+                <p class="task-btn-desc">Gerekli malzemeleri kullanarak çalışmaya uygun çözelti hazırla.</p>
+              </div>
+
+              <!-- Yön Oku (En Sağ): Açık mavi sağa ok (chevron-right >) -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 2. Buton: Numuneyi İncele -->
+            <button class="task-menu-btn" id="task-btn-2" type="button" aria-label="Numuneyi İncele">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_numune.png" alt="Numuneyi İncele" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Numuneyi İncele</h3>
+                <p class="task-btn-desc">Numuneyi uygun yöntemle incele ve gözlemlerini kaydet.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 3. Buton: Yüzeyi Temizle -->
+            <button class="task-menu-btn" id="task-btn-3" type="button" aria-label="Yüzeyi Temizle">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_yuzey.png" alt="Yüzeyi Temizle" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Yüzeyi Temizle</h3>
+                <p class="task-btn-desc">Çalışma alanının yüzeyini uygun temizleyici ile temizle.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 4. Buton: Atıkları Ayır -->
+            <button class="task-menu-btn" id="task-btn-4" type="button" aria-label="Atıkları Ayır">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_atik.png" alt="Atıkları Ayır" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Atıkları Ayır</h3>
+                <p class="task-btn-desc">Atıkları uygun atık kutularına ayırarak uzaklaştır.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </aside>
+
+      </section>
+
+      <!-- ========================================================
+           YENİ AŞAMA: PLANLAMA EKRANI (PLANNING STAGE CONTAINER)
+           - 'VARDİYAYI PLANLA' butonuna tıklandığında ve önceki tezgah/görevler kaybolduğunda açılır.
+           - Başlangıçta KESİNLİKLE gizlidir (opacity: 0, visibility: hidden, display: none).
+           - Sol Panel: Sürüklenebilir 'Görev Sırası' listesi (#sortable-task-list).
+           - Sağ Panel: 3x2 Grid halinde 'Koruyucu Donanım' seçme kartları.
+           - Alt Kısım: Ortalanmış 'Planımı Onayla' butonu (#btn-confirm-plan).
+           ======================================================== -->
+      <section class="planning-stage-container" id="planning-stage-container" aria-label="Vardiya Planlama Ekranı">
+        <!-- Üst/Orta: Yan Yana İki Simetrik Panel -->
+        <div class="planning-panels-row">
+          
+          <!-- SOL PANEL: GÖREV SIRASI -->
+          <div class="sim-panel-card planning-panel task-order-panel" id="task-order-panel" aria-label="Görev Sırası Paneli">
+            <div class="panel-header">
+              <div class="panel-header-badge">
+                <span class="panel-badge-dot"></span>
+                <div class="panel-titles-wrap">
+                  <h2 class="panel-header-title">Görev Sırası</h2>
+                  <p class="panel-header-subtitle">Kartları seçerek kendi sıranı oluştur.</p>
+                </div>
+              </div>
+              <span class="panel-pill">4 AŞAMA</span>
+            </div>
+
+            <!-- Sürüklenebilir Görevler Listesi -->
+            <div class="sortable-task-list" id="sortable-task-list" aria-label="Sıralanabilir Görev Listesi">
+              <!-- 1. Görev: Çözelti Hazırla -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-cozelti">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_cozelti.png" alt="Çözelti Hazırla" draggable="false" />
+                </div>
+                <div class="task-drag-title">Çözelti Hazırla</div>
+                <span class="task-order-badge">1. ADIM</span>
+              </div>
+
+              <!-- 2. Görev: Numuneyi İncele -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-numune">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_numune.png" alt="Numuneyi İncele" draggable="false" />
+                </div>
+                <div class="task-drag-title">Numuneyi İncele</div>
+                <span class="task-order-badge">2. ADIM</span>
+              </div>
+
+              <!-- 3. Görev: Yüzeyi Temizle -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-yuzey">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_yuzey.png" alt="Yüzeyi Temizle" draggable="false" />
+                </div>
+                <div class="task-drag-title">Yüzeyi Temizle</div>
+                <span class="task-order-badge">3. ADIM</span>
+              </div>
+
+              <!-- 4. Görev: Atıkları Ayır -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-atik">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_atik.png" alt="Atıkları Ayır" draggable="false" />
+                </div>
+                <div class="task-drag-title">Atıkları Ayır</div>
+                <span class="task-order-badge">4. ADIM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SAĞ PANEL: KORUYUCU DONANIM -->
+          <div class="sim-panel-card planning-panel gear-selection-panel" id="gear-selection-panel" aria-label="Koruyucu Donanım Paneli">
+            <div class="panel-header">
+              <div class="panel-header-badge">
+                <span class="panel-badge-dot"></span>
+                <div class="panel-titles-wrap">
+                  <h2 class="panel-header-title">Koruyucu Donanım</h2>
+                  <p class="panel-header-subtitle">Bu vardiya için gerekli koruyucu ekipmanları seç.</p>
+                </div>
+              </div>
+              <span class="panel-pill">6 DONANIM</span>
+            </div>
+
+            <!-- CSS Grid 3 Sütun x 2 Satır Donanım Kartları -->
+            <div class="gear-grid" id="gear-grid" aria-label="Koruyucu Donanım Seçim Alanı">
+              <!-- 1. Donanım: Koruyucu Gözlük -->
+              <button class="gear-card-item" type="button" data-gear-id="koruyucu-gozluk" aria-pressed="false" aria-label="Koruyucu Gözlük Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/koruyucu_gozluk.png" alt="Koruyucu Gözlük" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Koruyucu Gözlük</span>
+              </button>
+
+              <!-- 2. Donanım: Laboratuvar Önlüğü -->
+              <button class="gear-card-item" type="button" data-gear-id="onluk" aria-pressed="false" aria-label="Laboratuvar Önlüğü Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/onluk.png" alt="Laboratuvar Önlüğü" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Laboratuvar Önlüğü</span>
+              </button>
+
+              <!-- 3. Donanım: Uygun Eldiven -->
+              <button class="gear-card-item" type="button" data-gear-id="uygun-eldiven" aria-pressed="false" aria-label="Uygun Eldiven Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/eldiven.png" alt="Uygun Eldiven" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Uygun Eldiven</span>
+              </button>
+
+              <!-- 4. Donanım: Günlük Gözlük -->
+              <button class="gear-card-item" type="button" data-gear-id="gunluk-gozluk" aria-pressed="false" aria-label="Günlük Gözlük Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/gozluk.png" alt="Günlük Gözlük" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Günlük Gözlük</span>
+              </button>
+
+              <!-- 5. Donanım: Bez Eldiven -->
+              <button class="gear-card-item" type="button" data-gear-id="bez-eldiven" aria-pressed="false" aria-label="Bez Eldiven Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/temizlik_eldiven.png" alt="Bez Eldiven" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Bez Eldiven</span>
+              </button>
+
+              <!-- 6. Donanım: Maske -->
+              <button class="gear-card-item" type="button" data-gear-id="maske" aria-pressed="false" aria-label="Maske Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/maske.png" alt="Maske" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Maske</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+
+      <!-- ========================================================
+           ÖĞRETMEN AVATARI (kadın_head.png)
+           - Varsayılan (default) durumda sahnede kesinlikle gizlidir.
+           - "Vardiyaya Başla" butonuna basılıp tezgah ekranda tamamen
+             görünür hale geldiği anda sol alt köşeden slide-up + fade-in ile belirir.
+           - Konum: bottom: 0, left: 0 (ekranın sol alt sınırına sıfırlanmış).
+           - Katman (Z-Index): Tezgah ve arka plan nesnelerinin üstünde (en önde).
+           - Boyut: Ekran yüksekliğinin %15-20'si kadar dengeli ölçeklenir.
+           ======================================================== -->
+      <div class="teacher-avatar-container" id="teacher-avatar-container" aria-label="Gözlemci Öğretmen" aria-hidden="true">
+        <img src="img/kadin_head.png" alt="Laboratuvar Güvenlik Sorumlusu Öğretmen Avatarı" class="teacher-avatar-img" id="teacher-avatar-img" draggable="false" />
+
+        <!-- ÖĞRETMEN AVATARI KONUŞMA BALONCUĞU (SPEECH BUBBLE) - GÖREV VE PROTOKOLLER İÇİN -->
+        <div class="speech-bubble-container calm-speech-bubble comic-cloud-container avatar-speech-bubble" id="avatar-speech-bubble" aria-live="polite">
+          <svg class="cloud-svg-bg speech-svg-bg" viewBox="0 0 520 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <filter id="avatarThoughtBubbleShadow" x="-10%" y="-10%" width="124%" height="128%">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35" />
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.25" />
+              </filter>
+              <linearGradient id="avatarThoughtBubbleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="90%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#f8fafc" />
+              </linearGradient>
+            </defs>
+
+            <!-- Ana Bulut Gövdesi -->
+            <path class="thought-cloud-path"
+              d="M 150 28
+                 A 44 38 0 0 1 230 15
+                 A 52 42 0 0 1 320 15
+                 A 48 40 0 0 1 405 22
+                 A 44 38 0 0 1 472 48
+                 A 40 40 0 0 1 506 95
+                 A 42 42 0 0 1 482 142
+                 A 46 40 0 0 1 415 162
+                 A 50 42 0 0 1 325 164
+                 A 48 40 0 0 1 235 162
+                 A 44 40 0 0 1 160 152
+                 A 42 42 0 0 1 106 128
+                 A 40 40 0 0 1 88 82
+                 A 42 42 0 0 1 114 42
+                 A 40 38 0 0 1 150 28
+                 Z"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <!-- Düşünce İzi: Ana Balondan Karakterin Kafasına Doğru İnen 3 Kademeli Bağlantı Dairesi -->
+            <circle cx="102" cy="174" r="14"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3.5"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <circle cx="72" cy="196" r="9.5"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <circle cx="46" cy="216" r="6"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="2.5"
+              filter="url(#avatarThoughtBubbleShadow)" />
+          </svg>
+
+          <!-- Balon İçi Daktilo Metni -->
+          <div class="cloud-content speech-content avatar-speech-content">
+            <div class="speech-text-wrap avatar-speech-text-wrap">
+              <span class="speech-text avatar-speech-text" id="avatar-speech-text"></span><span class="typewriter-cursor" id="avatar-typewriter-cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================
+         BAŞLANGIÇ ETKİLEŞİM PANELİ (VARDİYAYA BAŞLA)
+         Mobil ve masaüstü tarayıcılarda sesin (autoplay engeli olmadan)
+         sorunsuz çalmasını sağlamak için kullanıcıdan ilk dokunmayı alır.
+         Tıklandığında yavaş slide-up animasyonu başlar, bitince ses çalar.
+         ======================================================== -->
+    <div class="start-interaction-overlay" id="start-overlay">
+      <div class="start-card">
+        <button id="btn-start-shift" class="btn-start-shift" aria-label="Laboratuvara Giriş">
+          <span class="btn-glow-effect"></span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-label">Laboratuvara Giriş</span>
+            <span class="btn-sub-label">Simülasyonu ve Sesli Brifingi Başlat</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================
+       SES DOSYASI ENTEGRASYONU
+       Sound klasöründeki MP3 ses dosyasını yükler.
+       Hem sound/giris_ses.mp3 hem de alternatif isimleri destekler.
+       ======================================================== -->
+  <audio id="shift-audio" preload="auto">
+    <source src="sound/giris_ses.mp3" type="audio/mpeg">
+    <source src="Sound/giris_ses.mp3" type="audio/mpeg">
+    <source src="sound/ses.mp3" type="audio/mpeg">
+    <source src="Sound/ses.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Görevler ve Protokoller Ses Çalıcısı (cozeltiolusturma, numuneyiincele, yuzeyitemizleme, atıklarıayır) -->
+  <audio id="task-audio" preload="auto"></audio>
+
+  <!-- Ana JavaScript Uygulama Dosyası -->
+  <script src="script.js"></script>
+</body>
+
+</html>

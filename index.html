@@ -1,0 +1,2962 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#070b13">
+  <meta name="description"
+    content="Risk Laboratuvarı – Güvenliği Sen Yönet: Vardiyayı güvenle tamamlamak için interaktif görsel ve sesli brifing simülasyonu.">
+  <title>Risk Laboratuvarı – Güvenliği Sen Yönet</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ========================================================
+       1. PORTRAIT / DİKEY EKRAN UYARI KATMANI (OVERLAY)
+       Telefon dikey konuma getirildiğinde asıl içerik gizlenir
+       ve bu tam ekran uyarı katmanı devreye girer.
+       ======================================================== -->
+  <section id="orientation-overlay" class="orientation-overlay" aria-live="polite">
+    <div class="overlay-backdrop"></div>
+    <div class="overlay-content">
+
+      <!-- 90 Derece Dönen Telefon İkon Animasyonu -->
+      <div class="phone-rotate-wrapper">
+        <div class="glow-ring"></div>
+        <svg class="phone-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Döndürme Kılavuz Yayı -->
+          <path class="rotate-arrow" d="M22 36 A 32 32 0 0 1 78 36" stroke="url(#cyanGrad)" stroke-width="3"
+            stroke-linecap="round" stroke-dasharray="4 4" />
+          <path class="arrow-head" d="M74 26 L82 36 L70 40" fill="#38bdf8" />
+
+          <!-- Telefon Gövdesi -->
+          <rect class="phone-body" x="34" y="20" width="32" height="60" rx="6" stroke="#38bdf8" stroke-width="2.5"
+            fill="rgba(15, 23, 42, 0.9)" />
+          <!-- Telefon Ekranı -->
+          <rect class="phone-screen" x="38" y="27" width="24" height="46" rx="2" fill="rgba(56, 189, 248, 0.2)" />
+          <!-- Ahize Çizgisi -->
+          <line x1="46" y1="23.5" x2="54" y2="23.5" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" />
+          <!-- Ekran Merkez Noktası -->
+          <circle cx="50" cy="50" r="3.5" fill="#38bdf8" />
+        </svg>
+        <defs>
+          <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#06b6d4" />
+            <stop offset="100%" stop-color="#38bdf8" />
+          </linearGradient>
+        </defs>
+      </div>
+
+      <!-- Rozet -->
+      <div class="lab-badge">
+        <span class="pulse-dot"></span>
+        <span>RİSK LABORATUVARI – GÜVENLİĞİ SEN YÖNET</span>
+      </div>
+
+      <!-- Kullanıcının İstediği Uyarı Mesajı -->
+      <h2 class="overlay-title">Cihazınızı Yatay Konuma Getirin</h2>
+      <p class="overlay-desc">
+        Lütfen devam etmek için cihazınızı yatay konuma getirin.
+      </p>
+
+      <p class="overlay-subnote">
+        Laboratuvar simülasyonu, karakter animasyonu ve ses entegrasyonu yalnızca <strong>Yatay (Landscape)</strong>
+        modda çalışacak şekilde optimize edilmiştir.
+      </p>
+
+      <!-- Masaüstü Test / Önizleme ve Mobil Tam Ekran Butonları -->
+      <div class="overlay-btn-group">
+        <button id="btn-overlay-fullscreen" class="btn-overlay-fs" title="Tam Ekrana Geç ve Başlat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+          <span>Tam Ekrana Geç ve Başlat</span>
+        </button>
+
+        <button id="btn-force-landscape" class="btn-preview-mode" title="Masaüstü test modu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+          <span>Önizleme Moduna Zorla (Test)</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================
+       2. ANA SAHNE (MAIN STAGE) - YALNIZCA YATAY MODDA ÇALIŞIR
+       Ekranda hiçbir şekilde konuşma balonu veya metin yoktur.
+       ======================================================== -->
+  <main id="main-stage" class="main-stage">
+
+    <!-- Sahne Geçiş Efekti (Dissolve / Fade Overlay) -->
+    <div class="scene-dissolve-overlay" id="scene-dissolve-overlay" aria-hidden="true"></div>
+
+    <!-- Tam Ekran Laboratuvar Arka Planı (Cover) -->
+    <div class="lab-bg-wrapper" id="lab-bg-wrapper">
+      <img src="img/laboratuvar_arkaplan.png" alt="Laboratuvar Arka Planı" class="lab-bg-image lab-bg-main" id="lab-bg-img" />
+      <img src="img/analizalani.png" alt="Analiz Alanı Arka Planı" class="lab-bg-image lab-bg-analiz" id="lab-bg-analiz-img" />
+      <img src="img/incelearkaplan.jpg" alt="Numuneyi İncele Arka Planı" class="lab-bg-image lab-bg-inspect" id="lab-bg-inspect-img" />
+      <div class="lab-doorway-transition" id="lab-doorway-transition" aria-hidden="true">
+        <div class="doorway-frame-left"></div>
+        <div class="doorway-beam"></div>
+        <div class="doorway-frame-right"></div>
+      </div>
+      <div class="lab-ambient-overlay"></div>
+      <div class="lab-vignette"></div>
+      <div class="lab-scanlines"></div>
+    </div>
+
+    <!-- ========================================================
+         ÜST BAŞLIK (HEADER / BANNER) ÇUBUĞU - TAM GENİŞLİK
+         Risk Laboratuvarı – Güvenliği Sen Yönet
+         ======================================================== -->
+    <header class="top-banner-header" id="top-banner-header" role="banner">
+      <div class="banner-shimmer"></div>
+      <div class="banner-grid-overlay"></div>
+      
+      <div class="banner-inner">
+        <!-- Sol: Deney Tüpü / Laboratuvar İkonu -->
+        <div class="banner-left-box" id="banner-left-box">
+          <div class="banner-icon-box" title="Laboratuvar Güvenliği">
+            <svg class="banner-lab-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 2v7.31L4.69 18.5a2 2 0 0 0 1.7 3.5h11.22a2 2 0 0 0 1.7-3.5L14 9.31V2"></path>
+              <path d="M8.5 2h7"></path>
+              <path d="M14 9.3a6.5 6.5 0 0 0-4 0"></path>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+              <circle cx="10" cy="18" r="0.8" fill="currentColor"></circle>
+              <circle cx="13.5" cy="17.2" r="0.6" fill="currentColor"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Merkez: Ana Başlık Metni -->
+        <div class="banner-center-title">
+          <h1 class="banner-main-title" id="banner-main-title">Risk Laboratuvarı – Güvenliği Sen Yönet</h1>
+        </div>
+
+        <!-- Sağ: Güvenlik Protokolü Durum Rozeti (Kırmızı Tema) -->
+        <div class="banner-side-badge banner-badge-right">
+          <span class="banner-pulse-dot"></span>
+          <svg class="banner-shield-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="banner-side-label">GÜVENLİK PROTOKOLÜ</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- HUD / Kontrol & Durum Çubuğu -->
+    <div class="simulation-hud" role="toolbar" aria-label="Simülasyon Kontrolleri">
+      <div class="hud-left">
+        <div class="hud-chip">
+          <span class="chip-dot"></span>
+          <span class="chip-text">CANLI SİMÜLASYON</span>
+        </div>
+
+        <!-- Ses Çalarken Çalışan Fütüristik Ekolayzer Çubuğu -->
+        <div class="audio-equalizer" id="audio-equalizer" title="Ses İletimi">
+          <span class="bar bar-1"></span>
+          <span class="bar bar-2"></span>
+          <span class="bar bar-3"></span>
+          <span class="bar bar-4"></span>
+          <span class="bar bar-5"></span>
+          <span class="audio-status-label" id="audio-status-label">SES BEKLENİYOR</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <!-- Ses Aç/Kapat -->
+        <button id="btn-audio-toggle" class="hud-btn" title="Sesi Aç/Kapat" aria-label="Sesi Aç/Kapat">
+          <svg id="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="icon-sound-off" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Yeniden Oynat (Animasyon + Ses Baştan Başlar) -->
+        <button id="btn-replay" class="hud-btn" title="Simülasyonu Yeniden Başlat" aria-label="Yeniden Başlat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+
+        <!-- Tam Ekran Modu (Mobilde tam yatay deneyim için) -->
+        <button id="btn-fullscreen" class="hud-btn" title="Tam Ekran" aria-label="Tam Ekran">
+          <svg id="icon-fs-enter" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+          <svg id="icon-fs-exit" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sahne İçi Görsel Katman -->
+    <div class="stage-view">
+
+      <!-- SOL TARAF: Ortak Kapsayıcı (Öğretmen ve Konuşma Balonu) -->
+      <div class="character-container" id="character-wrapper">
+        <div class="character-shadow"></div>
+        <img src="img/kadin.png" alt="Laboratuvar Güvenlik Sorumlusu Kadın Karakter" class="character-image"
+          id="character-img" />
+
+        <!-- SESLENDİRME İLE UYUMLU DAKTİLO (TYPEWRITER) BULUT FORMUNDA DÜŞÜNCE BALONU (THOUGHT BUBBLE) -->
+        <div class="speech-bubble-container calm-speech-bubble comic-cloud-container" id="speech-bubble" aria-live="polite">
+          <!-- Kenarları Kavisli Bulut Formunda Düşünce Balonu ve 3 Adet Kademeli Küçülen Bağlantı Dairesi -->
+          <svg class="cloud-svg-bg speech-svg-bg" viewBox="0 0 520 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <filter id="thoughtBubbleShadow" x="-10%" y="-10%" width="124%" height="128%">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35" />
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.25" />
+              </filter>
+              <linearGradient id="thoughtBubbleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="90%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#f8fafc" />
+              </linearGradient>
+            </defs>
+
+            <!-- Ana Bulut Gövdesi (Kavisli Pofuduk Bulut Kenarları) -->
+            <path class="thought-cloud-path"
+              d="M 150 28
+                 A 44 38 0 0 1 230 15
+                 A 52 42 0 0 1 320 15
+                 A 48 40 0 0 1 405 22
+                 A 44 38 0 0 1 472 48
+                 A 40 40 0 0 1 506 95
+                 A 42 42 0 0 1 482 142
+                 A 46 40 0 0 1 415 162
+                 A 50 42 0 0 1 325 164
+                 A 48 40 0 0 1 235 162
+                 A 44 40 0 0 1 160 152
+                 A 42 42 0 0 1 106 128
+                 A 40 40 0 0 1 88 82
+                 A 42 42 0 0 1 114 42
+                 A 40 38 0 0 1 150 28
+                 Z"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- Düşünce İzi: Ana Balondan Karakterin Kafasına Doğru İnen 3 Kademeli Bağlantı Dairesi -->
+            <!-- 3. Daire: En Büyük Daire (Bulut balonun hemen altında) -->
+            <circle cx="102" cy="174" r="14"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3.5"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- 2. Daire: Orta Boy Daire (Ara geçiş dairesi) -->
+            <circle cx="72" cy="196" r="9.5"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3"
+              filter="url(#thoughtBubbleShadow)" />
+
+            <!-- 1. Daire: En Küçük Daire (Karakterin kafasına/alın bölgesine en yakın başlangıç noktası) -->
+            <circle cx="46" cy="216" r="6"
+              fill="url(#thoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="2.5"
+              filter="url(#thoughtBubbleShadow)" />
+          </svg>
+
+          <!-- Balon İçi Daktilo Metni (Bulut Formunun Tam Merkezine Hizalanmış) -->
+          <div class="cloud-content speech-content">
+            <div class="speech-text-wrap">
+              <span class="speech-text" id="speech-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           ORTAK EYLEM BUTONLARI TAŞIYICISI (CSS GRID YÖNTEMİ)
+           - 'Vardiyaya Başla', 'Vardiyayı Planla' ve 'Planımı Onayla' butonları
+             aynı kutu (.action-buttons-carrier / .buton-tasiyici) içerisine alınmıştır.
+           - CSS Grid (grid-area: 1 / 1) ile her üç buton da ekranda BİREBİR AYNI KOORDİNATA sabitlenir.
+           - 'Vardiyayı Planla' tıklandığında o buton gizlenir ve tam aynı yerde 'Planımı Onayla' belirir.
+           - Sayfa düzeni (layout) hiçbir şekilde bozulmaz; ikinci buton ilkinin fiziksel alanını birebir devralır.
+           ======================================================== -->
+      <div class="action-buttons-carrier buton-tasiyici" id="action-buttons-carrier" aria-live="polite">
+        <!-- 1. Buton: Vardiyaya Başla (Konuşma bitiminde beliren ilk buton) -->
+        <div class="shift-action-container islem-butonu-kapsayici" id="shift-action-container">
+          <button id="btn-shift-action" class="btn-shift-action islem-butonu" type="button" aria-label="Vardiyaya Başla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">Vardiyaya Başla</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 2. Buton: Vardiyayı Planla (Tezgah açıldığında beliren buton) -->
+        <div class="plan-shift-container islem-butonu-kapsayici" id="plan-shift-container">
+          <button id="btn-plan-shift" class="btn-shift-action btn-plan-shift islem-butonu" type="button" aria-label="Vardiyayı Planla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">VARDİYAYI PLANLA</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 3. Buton: Planımı Onayla (Planlama aşamasında aynı yerde beliren onay butonu) -->
+        <div class="confirm-plan-container islem-butonu-kapsayici" id="confirm-plan-container">
+          <button id="btn-confirm-plan" class="btn-shift-action btn-confirm-plan islem-butonu" type="button" aria-label="Planımı Onayla">
+            <div class="btn-action-plate">
+              <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+              <span class="btn-action-text">PLANIMI ONAYLA</span>
+            </div>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ========================================================
+           ANA KAPSAYICI (MAIN ROW CONTAINER)
+           Orta alanı düzenlemek için yatay (horizontal) ana kapsayıcı.
+           Elemanların dikeyde aynı boyuta uzamasını sağlamak için yüksekliği eşitler (align-items: stretch).
+           ======================================================== -->
+      <section class="main-row-container" id="main-row-container" aria-label="Simülasyon Çalışma ve Görev Alanı">
+
+        <!-- ========================================================
+             TEZGAH ÇERÇEVESİ (SOL KUTU)
+             'Bugünkü Vardiya' başlığını ve laboratuvar tezgahı görselini
+             kendi içinde bir çerçeve (container) içine alır.
+             Yuvarlatılmış köşeler ve hafif arka plan rengi eklenmiştir.
+             ======================================================== -->
+        <div class="sim-panel-card workbench-panel" id="workbench-container" aria-label="Bugünkü Vardiya Tezgahı">
+          <!-- Sol Kutu Başlığı: Bugünkü Vardiya -->
+          <div class="panel-header">
+            <div class="panel-header-badge">
+              <span class="panel-badge-dot"></span>
+              <h2 class="panel-header-title">Bugünkü Vardiya</h2>
+            </div>
+            <span class="panel-pill">ÇALIŞMA ALANI</span>
+          </div>
+
+          <!-- Laboratuvar Tezgahı Görsel Alanı -->
+          <div class="workbench-display-wrapper">
+            <div class="workbench-card-glow"></div>
+            <div class="workbench-floor-shadow"></div>
+            <img src="img/tezgah.png" alt="Laboratuvar Çalışma Tezgahı" class="workbench-image" id="workbench-img" draggable="false" />
+          </div>
+        </div>
+
+<!-- ========================================================
+             BUTONLAR ÇERÇEVESİ (SAĞ KUTU)
+             Sağ tarafta alt alta dizili olan 4 adet görevi barındırır.
+             Tasarım stili Sol Kutu ile birebir aynıdır (Simetri ve Hizalama).
+             ======================================================== -->
+        <aside class="sim-panel-card task-menu-panel" id="task-menu-container" aria-label="Laboratuvar Görev Menüsü">
+          <!-- Sağ Kutu Başlığı -->
+          <div class="panel-header">
+            <div class="panel-header-badge">
+              <span class="panel-badge-dot"></span>
+              <h2 class="panel-header-title">Görevler ve Protokoller</h2>
+            </div>
+            <span class="panel-pill">4 İŞLEM</span>
+          </div>
+
+          <!-- Dikey 4 Adet Görev Butonu Listesi (Yatay Kart Şablonu) -->
+          <div class="task-buttons-list">
+            <!-- 1. Buton: Çözelti Hazırla -->
+            <button class="task-menu-btn" id="task-btn-1" type="button" aria-label="Çözelti Hazırla">
+              <!-- İkon Alanı (En Sol): Açık mavi/gri tonlarında ince çizgili pano/kontrol listesi ikonu -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı: İkonun hemen sağında kare formatında thumbnail -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_cozelti.png" alt="Çözelti Hazırla" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı (Orta): Kalın lacivert başlık ve ince gri açıklama -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Çözelti Hazırla</h3>
+                <p class="task-btn-desc">Gerekli malzemeleri kullanarak çalışmaya uygun çözelti hazırla.</p>
+              </div>
+
+              <!-- Yön Oku (En Sağ): Açık mavi sağa ok (chevron-right >) -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 2. Buton: Numuneyi İncele -->
+            <button class="task-menu-btn" id="task-btn-2" type="button" aria-label="Numuneyi İncele">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_numune.png" alt="Numuneyi İncele" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Numuneyi İncele</h3>
+                <p class="task-btn-desc">Numuneyi uygun yöntemle incele ve gözlemlerini kaydet.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 3. Buton: Yüzeyi Temizle -->
+            <button class="task-menu-btn" id="task-btn-3" type="button" aria-label="Yüzeyi Temizle">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_yuzey.png" alt="Yüzeyi Temizle" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Yüzeyi Temizle</h3>
+                <p class="task-btn-desc">Çalışma alanının yüzeyini uygun temizleyici ile temizle.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+
+            <!-- 4. Buton: Atıkları Ayır -->
+            <button class="task-menu-btn" id="task-btn-4" type="button" aria-label="Atıkları Ayır">
+              <!-- İkon Alanı -->
+              <div class="task-btn-left-badge" aria-hidden="true">
+                <svg class="task-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <line x1="8" y1="11" x2="14" y2="11"></line>
+                  <line x1="8" y1="15" x2="16" y2="15"></line>
+                </svg>
+              </div>
+
+              <!-- Görsel Alanı -->
+              <div class="task-btn-thumb-box">
+                <img src="img/task_atik.png" alt="Atıkları Ayır" class="task-btn-thumb-img" draggable="false" />
+              </div>
+
+              <!-- Metin Alanı -->
+              <div class="task-btn-content">
+                <h3 class="task-btn-title">Atıkları Ayır</h3>
+                <p class="task-btn-desc">Atıkları uygun atık kutularına ayırarak uzaklaştır.</p>
+              </div>
+
+              <!-- Yön Oku -->
+              <div class="task-btn-right-arrow" aria-hidden="true">
+                <svg class="task-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </aside>
+
+      </section>
+
+      <!-- ========================================================
+           YENİ AŞAMA: PLANLAMA EKRANI (PLANNING STAGE CONTAINER)
+           - 'VARDİYAYI PLANLA' butonuna tıklandığında ve önceki tezgah/görevler kaybolduğunda açılır.
+           - Başlangıçta KESİNLİKLE gizlidir (opacity: 0, visibility: hidden, display: none).
+           - Sol Panel: Sürüklenebilir 'Görev Sırası' listesi (#sortable-task-list).
+           - Sağ Panel: 3x2 Grid halinde 'Koruyucu Donanım' seçme kartları.
+           - Alt Kısım: Ortalanmış 'Planımı Onayla' butonu (#btn-confirm-plan).
+           ======================================================== -->
+      <section class="planning-stage-container" id="planning-stage-container" aria-label="Vardiya Planlama Ekranı">
+        <!-- Üst/Orta: Yan Yana İki Simetrik Panel -->
+        <div class="planning-panels-row">
+          
+          <!-- SOL PANEL: GÖREV SIRASI -->
+          <div class="sim-panel-card planning-panel task-order-panel" id="task-order-panel" aria-label="Görev Sırası Paneli">
+            <div class="panel-header">
+              <div class="panel-header-badge">
+                <span class="panel-badge-dot"></span>
+                <div class="panel-titles-wrap">
+                  <h2 class="panel-header-title">Görev Sırası</h2>
+                  <p class="panel-header-subtitle">Kartları seçerek kendi sıranı oluştur.</p>
+                </div>
+              </div>
+              <span class="panel-pill">4 AŞAMA</span>
+            </div>
+
+            <!-- Sürüklenebilir Görevler Listesi -->
+            <div class="sortable-task-list" id="sortable-task-list" aria-label="Sıralanabilir Görev Listesi">
+              <!-- 1. Görev: Çözelti Hazırla -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-cozelti">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_cozelti.png" alt="Çözelti Hazırla" draggable="false" />
+                </div>
+                <div class="task-drag-title">Çözelti Hazırla</div>
+                <span class="task-order-badge">1. ADIM</span>
+              </div>
+
+              <!-- 2. Görev: Numuneyi İncele -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-numune">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_numune.png" alt="Numuneyi İncele" draggable="false" />
+                </div>
+                <div class="task-drag-title">Numuneyi İncele</div>
+                <span class="task-order-badge">2. ADIM</span>
+              </div>
+
+              <!-- 3. Görev: Yüzeyi Temizle -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-yuzey">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_yuzey.png" alt="Yüzeyi Temizle" draggable="false" />
+                </div>
+                <div class="task-drag-title">Yüzeyi Temizle</div>
+                <span class="task-order-badge">3. ADIM</span>
+              </div>
+
+              <!-- 4. Görev: Atıkları Ayır -->
+              <div class="draggable-task-item" draggable="true" data-task-id="task-atik">
+                <div class="task-grip-handle" aria-hidden="true" title="Sürükle">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" opacity="0.4"><circle cx="9" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="15" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="18" r="2"/></svg>
+                </div>
+                <div class="task-drag-thumb">
+                  <img src="img/task_atik.png" alt="Atıkları Ayır" draggable="false" />
+                </div>
+                <div class="task-drag-title">Atıkları Ayır</div>
+                <span class="task-order-badge">4. ADIM</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SAĞ PANEL: KORUYUCU DONANIM -->
+          <div class="sim-panel-card planning-panel gear-selection-panel" id="gear-selection-panel" aria-label="Koruyucu Donanım Paneli">
+            <div class="panel-header">
+              <div class="panel-header-badge">
+                <span class="panel-badge-dot"></span>
+                <div class="panel-titles-wrap">
+                  <h2 class="panel-header-title">Koruyucu Donanım</h2>
+                  <p class="panel-header-subtitle">Bu vardiya için gerekli koruyucu ekipmanları seç.</p>
+                </div>
+              </div>
+              <span class="panel-pill">6 DONANIM</span>
+            </div>
+
+            <!-- CSS Grid 3 Sütun x 2 Satır Donanım Kartları -->
+            <div class="gear-grid" id="gear-grid" aria-label="Koruyucu Donanım Seçim Alanı">
+              <!-- 1. Donanım: Koruyucu Gözlük -->
+              <button class="gear-card-item" type="button" data-gear-id="koruyucu-gozluk" aria-pressed="false" aria-label="Koruyucu Gözlük Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/koruyucu_gozluk.png" alt="Koruyucu Gözlük" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Koruyucu Gözlük</span>
+              </button>
+
+              <!-- 2. Donanım: Laboratuvar Önlüğü -->
+              <button class="gear-card-item" type="button" data-gear-id="onluk" aria-pressed="false" aria-label="Laboratuvar Önlüğü Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/onluk.png" alt="Laboratuvar Önlüğü" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Laboratuvar Önlüğü</span>
+              </button>
+
+              <!-- 3. Donanım: Uygun Eldiven -->
+              <button class="gear-card-item" type="button" data-gear-id="uygun-eldiven" aria-pressed="false" aria-label="Uygun Eldiven Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/eldiven.png" alt="Uygun Eldiven" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Uygun Eldiven</span>
+              </button>
+
+              <!-- 4. Donanım: Günlük Gözlük -->
+              <button class="gear-card-item" type="button" data-gear-id="gunluk-gozluk" aria-pressed="false" aria-label="Günlük Gözlük Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/gozluk.png" alt="Günlük Gözlük" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Günlük Gözlük</span>
+              </button>
+
+              <!-- 5. Donanım: Bez Eldiven -->
+              <button class="gear-card-item" type="button" data-gear-id="bez-eldiven" aria-pressed="false" aria-label="Bez Eldiven Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/temizlik_eldiven.png" alt="Bez Eldiven" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Bez Eldiven</span>
+              </button>
+
+              <!-- 6. Donanım: Maske -->
+              <button class="gear-card-item" type="button" data-gear-id="maske" aria-pressed="false" aria-label="Maske Seç">
+                <div class="gear-check-badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="gear-thumb-box gear-img-wrapper">
+                  <img src="img/maske.png" alt="Maske" class="gear-thumb-img gear-card-img" draggable="false" />
+                </div>
+                <span class="gear-card-name">Maske</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========================================================
+           YENİ AŞAMA: HAZIRLIK MASASI VE KONTROL LİSTESİ SAHNESİ (#hazirlik-sahnesi)
+           - 'PLANIMI ONAYLA' butonuna tıklandığında açılır.
+           - Sol Panel: Hazırlık Masası (Etkileşimli SVG Sahnesi)
+           - Sağ Panel: Kontrol Listesi (4 Adım)
+           ======================================================== -->
+      <section class="prep-scene" id="hazirlik-sahnesi" aria-label="Laboratuvar Hazırlık Sahnesi" aria-hidden="true">
+        <!-- 1. ORANTILI KÜÇÜLTME KAPSAYICISI (ÖLÇEKLENDİRME: %25 KÜÇÜLTME / transform: scale(0.75)) -->
+        <div class="prep-scale-wrapper" id="prep-scale-wrapper">
+          <div class="prep-grid" id="prep-grid">
+
+          <!-- ================= SOL PANEL: HAZIRLIK MASASI ================= -->
+          <article class="panel panel-desk" id="panel-desk" aria-labelledby="desk-title">
+
+            <!-- Numuneyi İncele (Sahne 4) Özel Arka Planı: incelearkaplan.jpg (Analiz Alanı) -->
+            <div class="panel-desk-bg-inspect" id="panel-desk-bg-inspect" aria-hidden="true">
+              <img src="img/incelearkaplan.jpg" alt="Numuneyi İncele Laboratuvar Alanı" class="panel-desk-bg-inspect-img" id="panel-desk-bg-inspect-img" draggable="false" />
+              <div class="panel-desk-bg-inspect-overlay"></div>
+              <div class="panel-desk-doorway-shine"></div>
+            </div>
+
+            <!-- Arka plan: laboratuvar dolapları + periyodik tablo (yarı saydam) -->
+            <svg class="desk-bg" id="desk-bg-svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+              <defs>
+                <pattern id="bgTiles" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M40 0H0V40" fill="none" stroke="rgba(125,211,252,0.06)" stroke-width="1" />
+                </pattern>
+                <g id="bgFlask">
+                  <path d="M-6 -30 L-6 -14 L-18 8 Q-20 12 -15 12 L15 12 Q20 12 18 8 L6 -14 L6 -30 Z" />
+                </g>
+                <g id="bgBottle">
+                  <path d="M-5 -30 h10 v8 q8 3 8 12 v20 q0 2 -2 2 h-22 q-2 0 -2 -2 v-20 q0 -9 8 -12 Z" />
+                </g>
+                <g id="bgTube">
+                  <rect x="-4" y="-28" width="8" height="40" rx="4" />
+                </g>
+              </defs>
+
+              <rect width="1000" height="600" fill="url(#bgTiles)" />
+
+              <!-- Dolaplar -->
+              <g fill="rgba(15,40,70,0.45)" stroke="rgba(125,211,252,0.35)" stroke-width="1.5">
+                <rect x="24" y="24" width="150" height="190" rx="6" />
+                <rect x="184" y="24" width="150" height="190" rx="6" />
+                <rect x="344" y="24" width="150" height="190" rx="6" />
+              </g>
+              <g fill="none" stroke="rgba(125,211,252,0.22)" stroke-width="1.2">
+                <rect x="32" y="32" width="64" height="174" rx="3" /><rect x="102" y="32" width="64" height="174" rx="3" />
+                <rect x="192" y="32" width="64" height="174" rx="3" /><rect x="262" y="32" width="64" height="174" rx="3" />
+                <rect x="352" y="32" width="64" height="174" rx="3" /><rect x="422" y="32" width="64" height="174" rx="3" />
+                <path d="M32 96H166M32 152H166M192 96H326M192 152H326M352 96H486M352 152H486" />
+              </g>
+              <g fill="rgba(186,230,253,0.5)">
+                <rect x="92" y="110" width="3" height="22" rx="1.5" /><rect x="105" y="110" width="3" height="22" rx="1.5" />
+                <rect x="252" y="110" width="3" height="22" rx="1.5" /><rect x="265" y="110" width="3" height="22" rx="1.5" />
+                <rect x="412" y="110" width="3" height="22" rx="1.5" /><rect x="425" y="110" width="3" height="22" rx="1.5" />
+              </g>
+              <g fill="rgba(125,211,252,0.2)">
+                <use href="#bgFlask" x="56" y="82" /><use href="#bgBottle" x="130" y="82" /><use href="#bgTube" x="78" y="138" />
+                <use href="#bgTube" x="90" y="138" /><use href="#bgFlask" x="140" y="138" /><use href="#bgBottle" x="214" y="82" />
+                <use href="#bgFlask" x="296" y="82" /><use href="#bgBottle" x="232" y="138" /><use href="#bgTube" x="290" y="138" />
+                <use href="#bgTube" x="304" y="138" /><use href="#bgFlask" x="376" y="82" /><use href="#bgTube" x="452" y="82" />
+                <use href="#bgTube" x="464" y="82" /><use href="#bgBottle" x="392" y="138" /><use href="#bgFlask" x="460" y="138" />
+                <use href="#bgFlask" x="56" y="194" /><use href="#bgBottle" x="140" y="194" /><use href="#bgFlask" x="300" y="194" />
+                <use href="#bgBottle" x="380" y="194" /><use href="#bgTube" x="456" y="194" />
+              </g>
+
+              <!-- Periyodik tablo posteri -->
+              <rect x="532" y="22" width="446" height="302" rx="8" fill="rgba(10,30,58,0.55)" stroke="rgba(125,211,252,0.4)" stroke-width="1.5" />
+              <text x="755" y="52" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="17" font-weight="800" letter-spacing="2.4" fill="rgba(186,230,253,0.8)">BİLİM DAHA GÜVENLİ BİR DÜNYA İÇİN</text>
+              <g id="periodicTable"></g>
+            </svg>
+
+            <header class="panel-head">
+              <div>
+                <h2 class="panel-title" id="desk-title">
+                  <span class="title-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14M6 3v15a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V3" /><path d="M6 12h12" /></svg>
+                  </span>
+                  <span id="desk-title-text">HAZIRLIK MASASI</span>
+                </h2>
+                <p class="panel-sub" id="desk-sub">Vardiya için gerekli malzemeler masaya yerleştirildi.</p>
+              </div>
+              <span class="badge-outline" id="materials-badge"><span class="dot" aria-hidden="true"></span>0 / 3 MALZEME</span>
+            </header>
+
+            <div class="desk-stage">
+              <div class="desk-toast" id="desk-toast" role="status" aria-live="polite">
+                <span class="toast-icon" id="toast-icon" aria-hidden="true">i</span>
+                <span id="toast-text"></span>
+              </div>
+
+              <!-- SAHNE 4: KALINTI / KİRLİ KAP KONTAMİNASYON RİSKİ UYARI BANNERI -->
+              <div class="stage4-alert-banner modal-alert-banner" id="stage4-alert-banner" role="alert" aria-live="assertive">
+                <div class="alert-icon-box" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </div>
+                <div class="alert-content">
+                  <strong class="alert-title">İŞ SAĞLIĞI VE GÜVENLİĞİ İHLALİ!</strong>
+                  <p class="alert-text" id="stage4-alert-text">Bu kaptaki kalıntı numuneyi etkileyebilir. İnceleme için temiz kap seç</p>
+                </div>
+              </div>
+
+              <svg class="desk-svg" id="desk-svg" viewBox="-70 0 900 470" preserveAspectRatio="xMidYMax meet" role="img"
+                   aria-label="Hazırlık masası: Madde A şişesi, Saf Su şişesi, 250 mililitrelik dereceli beher ve metal tepside karıştırma çubuğu">
+                <defs>
+                  <linearGradient id="gTableTop" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#6f7d90" />
+                    <stop offset="0.5" stop-color="#9ba7b7" />
+                    <stop offset="1" stop-color="#76849a" />
+                  </linearGradient>
+                  <linearGradient id="gTableEdge" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#dfe6ee" />
+                    <stop offset="0.14" stop-color="#8794a5" />
+                    <stop offset="1" stop-color="#36424f" />
+                  </linearGradient>
+                  <linearGradient id="gCabinet" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#1b293c" />
+                    <stop offset="1" stop-color="#0a1320" />
+                  </linearGradient>
+                  <pattern id="pBrushed" width="900" height="5" patternUnits="userSpaceOnUse">
+                    <line x1="0" y1="1" x2="900" y2="1" stroke="#ffffff" stroke-opacity="0.07" />
+                    <line x1="0" y1="3.5" x2="900" y2="3.5" stroke="#000000" stroke-opacity="0.05" />
+                  </pattern>
+                  <radialGradient id="gShadow">
+                    <stop offset="0" stop-color="#000" stop-opacity="0.55" />
+                    <stop offset="1" stop-color="#000" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="gTableShine" cx="0.5" cy="0.5" r="0.5">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="0.22" />
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="gGlass" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#e0f2fe" stop-opacity="0.32" />
+                    <stop offset="0.18" stop-color="#bae6fd" stop-opacity="0.10" />
+                    <stop offset="0.6" stop-color="#bae6fd" stop-opacity="0.05" />
+                    <stop offset="0.86" stop-color="#e0f2fe" stop-opacity="0.16" />
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0.32" />
+                  </linearGradient>
+                  <linearGradient id="gCap" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#60a5fa" />
+                    <stop offset="0.45" stop-color="#2563eb" />
+                    <stop offset="1" stop-color="#1e3a8a" />
+                  </linearGradient>
+                  <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#bae6fd" stop-opacity="0.85" />
+                    <stop offset="1" stop-color="#38bdf8" stop-opacity="0.9" />
+                  </linearGradient>
+                  <linearGradient id="gBeakerWater" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#7dd3fc" stop-opacity="0.6" />
+                    <stop offset="1" stop-color="#0284c7" stop-opacity="0.78" />
+                  </linearGradient>
+                  <linearGradient id="gSolution" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#ddd6fe" stop-opacity="0.85" />
+                    <stop offset="1" stop-color="#7c3aed" stop-opacity="0.9" />
+                  </linearGradient>
+                  <radialGradient id="gPill" cx="0.35" cy="0.3" r="0.75">
+                    <stop offset="0" stop-color="#ffffff" />
+                    <stop offset="0.7" stop-color="#e5edf6" />
+                    <stop offset="1" stop-color="#b6c3d3" />
+                  </radialGradient>
+                  <linearGradient id="gMetal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#f1f5f9" />
+                    <stop offset="0.45" stop-color="#a9b6c6" />
+                    <stop offset="1" stop-color="#5f6d80" />
+                  </linearGradient>
+                  <linearGradient id="gMetalInner" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#475569" />
+                    <stop offset="1" stop-color="#9aa8b9" />
+                  </linearGradient>
+                  <linearGradient id="gScan" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#38bdf8" stop-opacity="0" />
+                    <stop offset="0.5" stop-color="#7dd3fc" stop-opacity="0.6" />
+                    <stop offset="1" stop-color="#38bdf8" stop-opacity="0" />
+                  </linearGradient>
+                  <linearGradient id="gShine" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#ffffff" stop-opacity="0" />
+                    <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.9" />
+                    <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+                  </linearGradient>
+
+                  <clipPath id="clipWater">
+                    <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z" />
+                  </clipPath>
+                  <clipPath id="clipJar">
+                    <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z" />
+                  </clipPath>
+                  <clipPath id="clipBeaker">
+                    <path d="M508 184 L508 340 Q508 349 517 349 L643 349 Q652 349 652 340 L652 184 Z" />
+                  </clipPath>
+                  <clipPath id="clipLabel">
+                    <rect x="574" y="260" width="76" height="60" rx="5" />
+                  </clipPath>
+                  <clipPath id="clipMediumBottle">
+                    <path d="M 654 216 L 654 228 Q 654 238 642 248 Q 632 258 632 274 L 632 338 Q 632 352 646 352 L 714 352 Q 728 352 728 338 L 728 274 Q 728 258 718 248 Q 706 238 706 228 L 706 216 Z" />
+                  </clipPath>
+                  <clipPath id="clipSampleBottle">
+                    <path d="M 752 266 L 752 274 Q 752 280 746 284 Q 740 288 740 296 L 740 342 Q 740 352 750 352 L 778 352 Q 788 352 788 342 L 788 296 Q 788 288 782 284 Q 776 280 776 274 L 776 266 Z" />
+                  </clipPath>
+                  <!-- Beyaz Kapak Gradyanı (Sahne 4: Boş Numune Kapları) -->
+                  <linearGradient id="gWhiteCap" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#f8fafc" />
+                    <stop offset="0.25" stop-color="#ffffff" />
+                    <stop offset="0.75" stop-color="#e2e8f0" />
+                    <stop offset="1" stop-color="#cbd5e1" />
+                  </linearGradient>
+                  <!-- Yatay Temiz Metalik Tepsi Gradyanları (Sahne 4: Numuneyi İncele) -->
+                  <linearGradient id="gTrayMetal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#f8fafc" />
+                    <stop offset="0.2" stop-color="#e2e8f0" />
+                    <stop offset="0.6" stop-color="#cbd5e1" />
+                    <stop offset="0.85" stop-color="#94a3b8" />
+                    <stop offset="1" stop-color="#64748b" />
+                  </linearGradient>
+                  <linearGradient id="gTrayInner" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#475569" />
+                    <stop offset="0.18" stop-color="#64748b" />
+                    <stop offset="0.82" stop-color="#94a3b8" />
+                    <stop offset="1" stop-color="#cbd5e1" />
+                  </linearGradient>
+                  <!-- Senaryo Dışı (Yabancı) Malzemeler İçin Özel Vektörel Gradyanlar -->
+                  <linearGradient id="gTubeLiquidRed" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.9" />
+                    <stop offset="100%" stop-color="#881337" stop-opacity="0.95" />
+                  </linearGradient>
+                  <linearGradient id="gTubeLiquidYellow" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fde047" stop-opacity="0.9" />
+                    <stop offset="100%" stop-color="#ca8a04" stop-opacity="0.95" />
+                  </linearGradient>
+                  <linearGradient id="gTubeLiquidGreen" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.9" />
+                    <stop offset="100%" stop-color="#065f46" stop-opacity="0.95" />
+                  </linearGradient>
+                  <linearGradient id="gPetriAgar" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9" />
+                    <stop offset="50%" stop-color="#fde047" stop-opacity="0.95" />
+                    <stop offset="100%" stop-color="#eab308" stop-opacity="0.85" />
+                  </linearGradient>
+                  <linearGradient id="gPetriMold" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#15803d" />
+                    <stop offset="50%" stop-color="#84cc16" />
+                    <stop offset="100%" stop-color="#166534" />
+                  </linearGradient>
+                  <!-- Su Lekeli Şişe İçin Kurumuş Su ve Mineral Gradyanı (Sahne 4) -->
+                  <linearGradient id="gWaterStain" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+                    <stop offset="60%" stop-color="#e2e8f0" stop-opacity="0.25" />
+                    <stop offset="100%" stop-color="#cbd5e1" stop-opacity="0.45" />
+                  </linearGradient>
+                  <!-- Analiz Cihazı (Sahne 5: inceleme2) İçin Özel Gradyanlar -->
+                  <linearGradient id="gDeviceBody" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="30%" stop-color="#f8fafc" />
+                    <stop offset="75%" stop-color="#e2e8f0" />
+                    <stop offset="100%" stop-color="#cbd5e1" />
+                  </linearGradient>
+                  <linearGradient id="gChamberInterior" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1e293b" />
+                    <stop offset="35%" stop-color="#0f172a" />
+                    <stop offset="100%" stop-color="#020617" />
+                  </linearGradient>
+                  <radialGradient id="gLedGlow" cx="50%" cy="0%" r="80%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+                    <stop offset="25%" stop-color="#7dd3fc" stop-opacity="0.6" />
+                    <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.15" />
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="gChamberBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#94a3b8" />
+                    <stop offset="45%" stop-color="#cbd5e1" />
+                    <stop offset="55%" stop-color="#ffffff" />
+                    <stop offset="100%" stop-color="#64748b" />
+                  </linearGradient>
+                  <linearGradient id="gStagePlatform" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#e2e8f0" />
+                    <stop offset="20%" stop-color="#cbd5e1" />
+                    <stop offset="80%" stop-color="#94a3b8" />
+                    <stop offset="100%" stop-color="#64748b" />
+                  </linearGradient>
+                  <linearGradient id="gStageTop" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#cbd5e1" />
+                    <stop offset="30%" stop-color="#f1f5f9" />
+                    <stop offset="70%" stop-color="#ffffff" />
+                    <stop offset="100%" stop-color="#cbd5e1" />
+                  </linearGradient>
+                  <linearGradient id="gChamberGlass" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.25" />
+                    <stop offset="25%" stop-color="#38bdf8" stop-opacity="0.08" />
+                    <stop offset="70%" stop-color="#bae6fd" stop-opacity="0.05" />
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0.2" />
+                  </linearGradient>
+                  <linearGradient id="gScreenBg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0369a1" />
+                    <stop offset="40%" stop-color="#0284c7" />
+                    <stop offset="80%" stop-color="#075985" />
+                    <stop offset="100%" stop-color="#0c2548" />
+                  </linearGradient>
+                  <radialGradient id="gPowerButton" cx="40%" cy="35%" r="70%">
+                    <stop offset="0%" stop-color="#334155" />
+                    <stop offset="70%" stop-color="#0f172a" />
+                    <stop offset="100%" stop-color="#020617" />
+                  </radialGradient>
+
+                  <!-- Yüzeyi Temizle Sahnesi: Opak Beyaz Plastik Şişe ve Mikrofiber Temizlik Bezi Gradyanları -->
+                  <linearGradient id="gWhitePlastic" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#cbd5e1" />
+                    <stop offset="15%" stop-color="#f1f5f9" />
+                    <stop offset="35%" stop-color="#ffffff" />
+                    <stop offset="70%" stop-color="#f8fafc" />
+                    <stop offset="90%" stop-color="#e2e8f0" />
+                    <stop offset="100%" stop-color="#94a3b8" />
+                  </linearGradient>
+                  <linearGradient id="gWhiteCapRibbed" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#94a3b8" />
+                    <stop offset="20%" stop-color="#e2e8f0" />
+                    <stop offset="40%" stop-color="#ffffff" />
+                    <stop offset="75%" stop-color="#f1f5f9" />
+                    <stop offset="100%" stop-color="#64748b" />
+                  </linearGradient>
+                  <linearGradient id="gMicrofiber" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#e0f2fe" />
+                    <stop offset="30%" stop-color="#bae6fd" />
+                    <stop offset="70%" stop-color="#7dd3fc" />
+                    <stop offset="100%" stop-color="#38bdf8" />
+                  </linearGradient>
+                  <linearGradient id="gMicrofiberFold" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0284c7" />
+                    <stop offset="100%" stop-color="#0369a1" />
+                  </linearGradient>
+                  <pattern id="pMicrofiber" width="6" height="6" patternUnits="userSpaceOnUse">
+                    <path d="M0 3h6M3 0v6" stroke="#38bdf8" stroke-width="0.5" stroke-opacity="0.25" />
+                  </pattern>
+                </defs>
+
+                <!-- ============ MASA ============ -->
+                <g id="table">
+                  <polygon points="-640,322 1540,322 1600,398 -700,398" fill="url(#gTableTop)" />
+                  <polygon points="-640,322 1540,322 1600,398 -700,398" fill="url(#pBrushed)" />
+                  <ellipse cx="420" cy="350" rx="380" ry="26" fill="url(#gTableShine)" />
+                  <line x1="-640" y1="322.5" x2="1540" y2="322.5" stroke="#d6dee8" stroke-opacity="0.55" />
+                  <rect x="-700" y="398" width="2300" height="22" fill="url(#gTableEdge)" />
+                  <line x1="-700" y1="398.6" x2="1600" y2="398.6" stroke="#ffffff" stroke-opacity="0.7" />
+                  <rect x="-700" y="420" width="2300" height="70" fill="url(#gCabinet)" />
+                  <g id="cabinetDoors"></g>
+                  <g font-size="9.5" font-weight="700" letter-spacing="1.4" fill="rgba(15,23,42,0.55)" text-anchor="middle">
+                    <text x="120" y="413">MADDE A</text>
+                    <text x="250" y="413">SAF SU</text>
+                    <text x="470" y="413">BEHER 250 mL</text>
+                    <text id="tableLabelMedium" x="680" y="413" style="display: none;">ÇÖZELTİ</text>
+                    <text id="tableLabelSample" x="764" y="413" style="display: none;">NUMUNE KABI</text>
+                  </g>
+                </g>
+
+                <!-- ============ SENARYO DIŞI (YABANCI) LABORATUVAR NESNELERİ (SAHNE 1 BAŞLANGICI) ============ -->
+                <!-- 1. KULLANILMIŞ DENEY TÜPÜ STANDI -->
+                <g id="itemDirtyRackWrap" class="foreign-desk-item" transform="translate(10, 0)">
+                  <g class="desk-item" id="itemDirtyRack" style="--d:0.1s">
+                    <!-- Taban Gölgesi -->
+                    <ellipse cx="140" cy="354" rx="72" ry="7" fill="url(#gShadow)" opacity="0.6" />
+                    <!-- Raf Taban Çerçevesi -->
+                    <rect x="76" y="340" width="128" height="12" rx="3" fill="#ea580c" stroke="#c2410c" stroke-width="1.2" />
+                    <!-- Dikey Yan Ayaklar -->
+                    <path d="M78 240 L78 348 M202 240 L202 348" stroke="#ea580c" stroke-width="6" stroke-linecap="round" />
+                    <path d="M78 240 L78 348 M202 240 L202 348" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" />
+                    <!-- Orta Delikli Raf -->
+                    <rect x="74" y="284" width="132" height="8" rx="2" fill="#ea580c" stroke="#c2410c" stroke-width="1" />
+                    <!-- Üst Delikli Raf -->
+                    <rect x="74" y="244" width="132" height="8" rx="2" fill="#f97316" stroke="#c2410c" stroke-width="1.2" />
+
+                    <!-- Tüp 1: Kırmızı/Mor Kimyasal Atıklı Tüp -->
+                    <g class="dirty-tube" transform="translate(90, 218)">
+                      <rect x="0" y="0" width="16" height="120" rx="8" fill="url(#gGlass)" stroke="rgba(219,234,254,0.85)" stroke-width="1.4" />
+                      <path d="M2 75 L2 112 Q2 118 8 118 Q14 118 14 112 L14 75 Z" fill="url(#gTubeLiquidRed)" />
+                      <ellipse cx="8" cy="75" rx="6" ry="1.5" fill="#f43f5e" fill-opacity="0.85" />
+                      <line x1="4" y1="10" x2="4" y2="108" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5" />
+                      <ellipse cx="8" cy="2" rx="9" ry="2.2" fill="none" stroke="rgba(219,234,254,0.9)" stroke-width="1.4" />
+                    </g>
+
+                    <!-- Tüp 2: Bulanık Sarı/Amber Atıklı Tüp -->
+                    <g class="dirty-tube" transform="translate(116, 212)">
+                      <rect x="0" y="0" width="16" height="126" rx="8" fill="url(#gGlass)" stroke="rgba(219,234,254,0.85)" stroke-width="1.4" />
+                      <path d="M2 90 L2 118 Q2 124 8 124 Q14 124 14 118 L14 90 Z" fill="url(#gTubeLiquidYellow)" />
+                      <ellipse cx="8" cy="90" rx="6" ry="1.5" fill="#eab308" fill-opacity="0.85" />
+                      <line x1="4" y1="10" x2="4" y2="114" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5" />
+                      <ellipse cx="8" cy="2" rx="9" ry="2.2" fill="none" stroke="rgba(219,234,254,0.9)" stroke-width="1.4" />
+                    </g>
+
+                    <!-- Tüp 3: Yeşil/Mavi Atıklı Tüp -->
+                    <g class="dirty-tube" transform="translate(142, 222)">
+                      <rect x="0" y="0" width="16" height="116" rx="8" fill="url(#gGlass)" stroke="rgba(219,234,254,0.85)" stroke-width="1.4" />
+                      <path d="M2 60 L2 108 Q2 114 8 114 Q14 114 14 108 L14 60 Z" fill="url(#gTubeLiquidGreen)" />
+                      <ellipse cx="8" cy="60" rx="6" ry="1.5" fill="#10b981" fill-opacity="0.85" />
+                      <line x1="4" y1="10" x2="4" y2="104" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5" />
+                      <ellipse cx="8" cy="2" rx="9" ry="2.2" fill="none" stroke="rgba(219,234,254,0.9)" stroke-width="1.4" />
+                    </g>
+
+                    <!-- Tüp 4: Lekeli Atık Tüp -->
+                    <g class="dirty-tube" transform="translate(168, 220)">
+                      <rect x="0" y="0" width="16" height="118" rx="8" fill="url(#gGlass)" stroke="rgba(219,234,254,0.85)" stroke-width="1.4" />
+                      <circle cx="8" cy="95" r="3" fill="#a855f7" fill-opacity="0.4" />
+                      <circle cx="11" cy="70" r="2" fill="#a855f7" fill-opacity="0.3" />
+                      <line x1="4" y1="10" x2="4" y2="106" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5" />
+                      <ellipse cx="8" cy="2" rx="9" ry="2.2" fill="none" stroke="rgba(219,234,254,0.9)" stroke-width="1.4" />
+                    </g>
+
+                    <!-- Stand Ön Çerçevesi ve İkaz Etiketi -->
+                    <rect x="74" y="342" width="132" height="10" rx="2" fill="#c2410c" />
+                    <rect x="108" y="343.5" width="64" height="7" rx="2" fill="#fef08a" stroke="#ca8a04" stroke-width="0.6" />
+                    <text x="140" y="349.5" text-anchor="middle" font-size="5" font-weight="800" fill="#854d0e" letter-spacing="0.4">KULLANILMIŞ STAND</text>
+                  </g>
+                </g>
+
+                <!-- 2. KİRLİ PETRİ KABI -->
+                <g id="itemDirtyPetriWrap" class="foreign-desk-item" transform="translate(0, 0)">
+                  <g class="desk-item" id="itemDirtyPetri" style="--d:0.18s">
+                    <!-- Taban Gölgesi -->
+                    <ellipse cx="585" cy="358" rx="55" ry="8" fill="url(#gShadow)" opacity="0.6" />
+                    <!-- Alt Cam Çanak -->
+                    <ellipse cx="585" cy="354" rx="46" ry="11" fill="url(#gGlass)" stroke="rgba(219,234,254,0.9)" stroke-width="1.8" />
+                    <path d="M539 354 C539 363 560 367 585 367 C610 367 631 363 631 354 Z" fill="url(#gGlass)" stroke="rgba(219,234,254,0.8)" stroke-width="1.2" />
+                    <!-- Besiyeri Agar ve Bakteri/Kimyasal Kültür Çizgileri -->
+                    <ellipse cx="585" cy="354" rx="42" ry="9" fill="url(#gPetriAgar)" />
+                    <path d="M558 354 Q572 350 588 355 Q602 360 616 353" fill="none" stroke="url(#gPetriMold)" stroke-width="2.6" stroke-linecap="round" />
+                    <path d="M565 357 Q580 354 595 358" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.85" />
+                    <circle cx="566" cy="352" r="2.2" fill="#15803d" />
+                    <circle cx="576" cy="357" r="1.8" fill="#ca8a04" />
+                    <circle cx="604" cy="355" r="2.5" fill="#15803d" />
+                    <circle cx="594" cy="352" r="1.5" fill="#b91c1c" />
+                    <!-- Yarım Açık Cam Kapak -->
+                    <g transform="rotate(-9 590 348)">
+                      <ellipse cx="592" cy="348" rx="48" ry="11" fill="url(#gGlass)" stroke="rgba(255,255,255,0.95)" stroke-width="1.8" />
+                      <ellipse cx="592" cy="347" rx="44" ry="9.5" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.6" />
+                      <line x1="552" y1="347" x2="632" y2="347" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.45" />
+                    </g>
+                    <!-- Yabancı Nesne İkaz Etiketi -->
+                    <rect x="562" y="367" width="46" height="8" rx="2" fill="#ef4444" stroke="#991b1b" stroke-width="0.6" />
+                    <text x="585" y="373" text-anchor="middle" font-size="4.8" font-weight="800" fill="#ffffff" letter-spacing="0.4">KİRLİ PETRİ</text>
+                  </g>
+                </g>
+
+                <!-- ============ BEHER (250 mL, DERECELİ) ============ -->
+                <g id="itemBeakerWrap" transform="translate(-80, 0)">
+                <g class="desk-item" id="itemBeaker" style="--d:0.24s">
+                  <ellipse cx="580" cy="353" rx="90" ry="7" fill="url(#gShadow)" />
+                  <path d="M505 182 L505 340 Q505 352 517 352 L643 352 Q655 352 655 340 L655 182 Z" fill="url(#gGlass)" />
+
+                  <path id="pourStream" class="pour-stream" pathLength="1" d="M562 140 C563 175 566 220 567 346" />
+                  <path id="pourStreamFlow" class="pour-stream-flow" pathLength="1" d="M562 140 C563 175 566 220 567 346" />
+
+                  <g clip-path="url(#clipBeaker)">
+                    <g id="beakerFill" style="transform: translate3d(0px, 98px, 0px) rotate(0deg); opacity: 0;">
+                      <rect x="440" y="258" width="280" height="180" fill="url(#gBeakerWater)" />
+                      <rect id="solutionTint" x="440" y="258" width="280" height="180" fill="url(#gSolution)" style="opacity: 0;" />
+                      <ellipse cx="580" cy="258" rx="74" ry="4.5" fill="#e0f2fe" fill-opacity="0.6" />
+                      <circle class="bubble" cx="540" cy="344" r="2.4" fill="#fff" style="--bd:0s" />
+                      <circle class="bubble" cx="572" cy="346" r="1.8" fill="#fff" style="--bd:0.35s" />
+                      <circle class="bubble" cx="604" cy="345" r="2.6" fill="#fff" style="--bd:0.7s" />
+                      <circle class="bubble" cx="630" cy="346" r="1.6" fill="#fff" style="--bd:0.2s" />
+                      <circle class="bubble" cx="556" cy="347" r="1.4" fill="#fff" style="--bd:0.9s" />
+                    </g>
+                    <g id="beakerSediment" style="opacity: 0;"></g>
+                  </g>
+
+                  <g id="fallLayer"></g>
+                  <g id="rodSlot"></g>
+
+                  <!-- Spout (Dökme Gagası) Pozisyon Referans Noktası -->
+                  <circle id="beakerSpoutMarker" cx="662" cy="177" r="1.5" opacity="0" pointer-events="none" />
+
+                  <!-- Ön cam, kenar, gaga, derecelendirme -->
+                  <path d="M496 177 Q503 179 505 186 L505 340 Q505 352 517 352 L643 352 Q655 352 655 340 L655 184 Q656 178 662 177"
+                        fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.5" stroke-linejoin="round" />
+                  <path d="M492 176.5 L664 176.5" stroke="rgba(224,242,254,0.92)" stroke-width="3.5" stroke-linecap="round" />
+                  <rect x="512" y="192" width="5" height="140" rx="2.5" fill="#ffffff" fill-opacity="0.28" />
+                  <rect x="645" y="196" width="3" height="130" rx="1.5" fill="#ffffff" fill-opacity="0.16" />
+
+                  <g stroke="rgba(255,255,255,0.8)" stroke-linecap="round">
+                    <path d="M509 318H532M509 288H532M509 258H532M509 228H532M509 198H532" stroke-width="1.6" />
+                    <path d="M509 333H521M509 303H521M509 273H521M509 243H521M509 213H521" stroke-width="1.1" />
+                  </g>
+                  <g font-size="10" font-weight="700" fill="rgba(240,249,255,0.9)">
+                    <text x="536" y="321.5">50</text>
+                    <text x="536" y="291.5">100</text>
+                    <text x="536" y="261.5">150</text>
+                    <text x="536" y="231.5">200</text>
+                    <text x="536" y="201.5">250</text>
+                  </g>
+                  <text x="612" y="214" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="0.6" fill="rgba(224,242,254,0.75)">250 mL</text>
+
+                  <!-- Marking spot (etiket alanı) -->
+                  <rect x="576" y="262" width="72" height="56" rx="4" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.5)" stroke-dasharray="3 3" />
+                  <text x="612" y="293" text-anchor="middle" font-size="6.5" font-weight="700" letter-spacing="0.8" fill="rgba(255,255,255,0.6)">ETİKET ALANI</text>
+
+                  <!-- Yapışan etiket -->
+                  <g id="beakerLabel">
+                    <rect x="574" y="260" width="76" height="60" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+                    <path d="M574 265 Q574 260 579 260 L645 260 Q650 260 650 265 L650 274 L574 274 Z" fill="#f59e0b" />
+                    <text x="612" y="270.5" text-anchor="middle" font-size="7" font-weight="800" letter-spacing="1" fill="#ffffff">ÇÖZELTİ</text>
+                    <text id="beakerLabelCustomText" x="612" y="288" text-anchor="middle" font-size="9" font-weight="800" fill="#0f172a">Madde A Çözeltisi</text>
+                    <text x="612" y="299" text-anchor="middle" font-size="7" font-weight="700" fill="#334155">Saf Su · 150 mL</text>
+                    <line x1="580" y1="305" x2="644" y2="305" stroke="#e2e8f0" />
+                    <text id="labelDate" x="612" y="314" text-anchor="middle" font-size="6.5" font-weight="600" fill="#64748b">Vardiya</text>
+                    <g clip-path="url(#clipLabel)">
+                      <polygon id="labelShine" points="548,250 570,250 548,330 526,330" fill="url(#gShine)" />
+                    </g>
+                  </g>
+
+                  <g id="volTag">
+                    <rect x="668" y="242" width="86" height="26" rx="13" fill="rgba(8,20,40,0.88)" stroke="#38bdf8" stroke-width="1.2" />
+                    <circle cx="682" cy="255" r="4" fill="#38bdf8" />
+                    <text id="volText" x="720" y="259" text-anchor="middle" font-size="11" font-weight="800" fill="#e0f2fe">0 mL</text>
+                  </g>
+                </g>
+                </g>
+
+                <!-- ============ MADDE A ÇÖZELTİSİ KABI (SAHNE 3: GENİŞ AĞIZLI REAKTİF ŞİŞESİ) ============ -->
+                <g class="desk-item" id="itemMediumBottle" style="display: none;">
+                  <ellipse cx="680" cy="353" rx="46" ry="6.5" fill="url(#gShadow)" />
+                  <!-- Cam Gövde (Geniş Ağızlı Form) -->
+                  <path d="M 654 216 L 654 228 Q 654 238 642 248 Q 632 258 632 274 L 632 338 Q 632 352 646 352 L 714 352 Q 728 352 728 338 L 728 274 Q 728 258 718 248 Q 706 238 706 228 L 706 216 Z"
+                        fill="url(#gGlass)" stroke="rgba(219,234,254,0.92)" stroke-width="2.2" stroke-linejoin="round" />
+                  <!-- İçindeki Sıvı (Başlangıçta Beherden aktarılınca dolar) -->
+                  <g clip-path="url(#clipMediumBottle)">
+                    <g id="mediumBottleLiquid" style="transform: translateY(90px) rotate(0deg); opacity: 0; transition: transform 0.6s ease, opacity 0.4s ease;">
+                      <rect id="mediumBottleLiquidRect" x="560" y="260" width="240" height="160" fill="url(#gBeakerWater)" fill-opacity="0.85" />
+                      <ellipse id="mediumBottleLiquidSurface" cx="680" cy="260" rx="46" ry="3.8" fill="#bae6fd" fill-opacity="0.6" />
+                    </g>
+                  </g>
+                  <!-- Cam Parlama Çizgileri -->
+                  <path d="M 640 268 L 640 342" stroke="#ffffff" stroke-opacity="0.45" stroke-width="4" stroke-linecap="round" />
+                  <path d="M 720 272 L 720 338" stroke="#ffffff" stroke-opacity="0.22" stroke-width="2.2" stroke-linecap="round" />
+                  <!-- Geniş Boyun Boğumu ve Dudak (Lip) -->
+                  <rect x="650" y="214" width="60" height="7" rx="2.5" fill="rgba(219,234,254,0.4)" stroke="rgba(219,234,254,0.85)" stroke-width="1.4" />
+                  <path d="M 650 214 L 710 214" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.8" stroke-linecap="round" />
+
+                  <!-- Şişe Ağzı ve Sağ Dudak Pozisyon Referans Noktaları -->
+                  <circle id="mediumBottleMouthMarker" cx="680" cy="216" r="1.5" opacity="0" pointer-events="none" />
+                  <circle id="mediumBottleLipRight" cx="704" cy="216" r="1.5" opacity="0" pointer-events="none" />
+
+                  <!-- Etiket: "Madde A Çözeltisi" (Aktarım ve kapak kapanması sonrası animasyonla yapışır) -->
+                  <g id="mediumBottleLabel" style="opacity: 0; transform-origin: 680px 300px; transform: scale(0.65) translateY(-16px);">
+                    <rect x="646" y="272" width="68" height="50" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+                    <rect x="648" y="274" width="64" height="6" fill="#2563eb" rx="2" />
+                    <text x="680" y="293" text-anchor="middle" font-size="9" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#0f172a">Madde A</text>
+                    <text x="680" y="305" text-anchor="middle" font-size="8.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#0f172a">Çözeltisi</text>
+                    <text x="680" y="316" text-anchor="middle" font-size="6.5" font-weight="600" fill="#64748b">150 mL · Saf Su</text>
+                  </g>
+                  <!-- Bağımsız Hareket Edebilen Geniş Mavi Kapak -->
+                  <g id="mediumBottleCap" style="transform-origin: 680px 190px;">
+                    <rect x="648" y="190" width="64" height="25" rx="4" fill="url(#gCap)" />
+                    <path d="M654 195V213M660 195V213M666 195V213M672 195V213M678 195V213M684 195V213M690 195V213M696 195V213M702 195V213M708 195V213" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.2" />
+                    <rect x="648" y="190" width="64" height="5.5" rx="2.5" fill="#93c5fd" fill-opacity="0.65" />
+                  </g>
+                </g>
+
+                <!-- Animasyonlu Sıvı Akış Çizgisi (Beher -> Numune ve Şişe -> Numune) -->
+                <path id="stage3LiquidStream" class="pour-stream" pathLength="1" d="M 648 185 C 684 175, 736 195, 764 266" style="display: none;" />
+                <path id="stage3LiquidStreamFlow" class="pour-stream-flow" pathLength="1" d="M 648 185 C 684 175, 736 195, 764 266" style="display: none;" />
+
+                <!-- ============ TEMİZ ÇALIŞMA TEPSİSİ (SAHNE 4: NUMUNEYİ İNCELE) ============ -->
+                <g id="cleanSampleTrayGroup" class="clean-sample-tray-group" style="display: none;">
+                  <!-- Yatay, Gri/Metalik SVG Tepsi (İki şişenin sağında hizalanmış) -->
+                  <g id="cleanSampleTray" cursor="pointer">
+                    <ellipse cx="545" cy="382" rx="195" ry="9" fill="url(#gShadow)" opacity="0.6" />
+                    <!-- Tepsi dış kenarı (tamamen yatay, gri/metalik) -->
+                    <rect x="360" y="344" width="370" height="38" rx="8" fill="url(#gTrayMetal)" stroke="#94a3b8" stroke-width="1.8" />
+                    <!-- Tepsi iç haznesi -->
+                    <rect x="368" y="348" width="354" height="30" rx="5" fill="url(#gTrayInner)" stroke="#64748b" stroke-width="0.8" stroke-opacity="0.6" />
+                    <!-- Yansıma çizgileri -->
+                    <line x1="369" y1="346" x2="721" y2="346" stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.6" stroke-linecap="round" />
+                    <line x1="372" y1="376" x2="718" y2="376" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.2" stroke-linecap="round" />
+                  </g>
+
+                  <!-- 2. Şeffaf, İçi Boş Numune Kabı (SU LEKELİ / KULLANILMIŞ - Beyaz Kapaklı) -->
+                  <g class="empty-sample-bottle dirty-sample-bottle" id="traySampleBottle2" transform="translate(-140, 0)" cursor="pointer" style="display: none;">
+                    <ellipse cx="764" cy="353" rx="26" ry="5" fill="url(#gShadow)" opacity="0.4" />
+                    <!-- Cam Gövde -->
+                    <path d="M 752 266 L 752 274 Q 752 280 746 284 Q 740 288 740 296 L 740 342 Q 740 352 750 352 L 778 352 Q 788 352 788 342 L 788 296 Q 788 288 782 284 Q 776 280 776 274 L 776 266 Z"
+                          fill="url(#gGlass)" stroke="rgba(219,234,254,0.92)" stroke-width="1.8" stroke-linejoin="round" />
+
+                    <!-- Belirgin Su Lekeleri Katmanı (Hafif pis / kullanılmış su lekeleri görünümü) -->
+                    <g id="trayBottle2WaterStains" class="bottle-water-stains-layer">
+                      <!-- Dipte kurumuş mineral/su lekesi birikintisi -->
+                      <path d="M 740 338 Q 748 335 758 339 Q 772 336 788 339 L 788 342 Q 788 352 778 352 L 750 352 Q 740 352 740 342 Z"
+                            fill="url(#gWaterStain)" stroke="rgba(255,255,255,0.7)" stroke-width="0.9" />
+                      <!-- Kurumuş su lekesi halkaları (mineral kireç çemberleri) -->
+                      <ellipse cx="754" cy="316" rx="5.5" ry="9" fill="rgba(241,245,249,0.2)" stroke="rgba(255,255,255,0.75)" stroke-width="1.3" transform="rotate(-14 754 316)" />
+                      <ellipse cx="774" cy="324" rx="6" ry="10" fill="rgba(241,245,249,0.22)" stroke="rgba(255,255,255,0.8)" stroke-width="1.4" transform="rotate(16 774 324)" />
+                      <circle cx="762" cy="302" r="4.5" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.7)" stroke-width="1.2" />
+                      <circle cx="778" cy="340" r="3.5" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.65)" stroke-width="1.1" />
+                      <circle cx="747" cy="334" r="3" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.65)" stroke-width="1" />
+                      <circle cx="768" cy="336" r="3.2" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.65)" stroke-width="1" />
+                      <circle cx="757" cy="292" r="2.8" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.6)" stroke-width="0.9" />
+                      <!-- Dalgalı kurumuş su çizgileri -->
+                      <path d="M 742 324 Q 754 321 766 325 Q 778 322 786 325"
+                            fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="4,2" />
+                      <path d="M 743 310 Q 752 312 764 308 Q 778 313 785 309"
+                            fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3,2" />
+                      <!-- Dikey süzülüp kurumuş su damlası izi -->
+                      <path d="M 770 294 Q 768 312 771 328"
+                            fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="5,2" />
+                    </g>
+
+                    <!-- Cam Parlama Vurgusu -->
+                    <path d="M 744 296 L 744 342" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 784 300 L 784 338" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.5" stroke-linecap="round" />
+                    <!-- Beyaz Kapak -->
+                    <g class="sample-white-cap">
+                      <rect x="749" y="250" width="30" height="18" rx="3" fill="url(#gWhiteCap)" stroke="#cbd5e1" stroke-width="1.2" />
+                      <path d="M753 253V265M757 253V265M761 253V265M765 253V265M769 253V265M773 253V265M777 253V265" stroke="#94a3b8" stroke-opacity="0.45" stroke-width="1.1" />
+                      <rect x="749" y="250" width="30" height="4" rx="2" fill="#ffffff" fill-opacity="0.9" />
+                    </g>
+                  </g>
+                </g>
+
+                <!-- ============ 1. ŞEFFAF, TEMİZ BOŞ NUMUNE KABI (SAHNE 4) ============ -->
+                <g class="empty-sample-bottle" id="traySampleBottle1" transform="translate(-300, 0)" cursor="pointer" style="display: none;">
+                  <ellipse cx="764" cy="353" rx="26" ry="5" fill="url(#gShadow)" opacity="0.4" />
+                  <!-- Cam Gövde -->
+                  <path d="M 752 266 L 752 274 Q 752 280 746 284 Q 740 288 740 296 L 740 342 Q 740 352 750 352 L 778 352 Q 788 352 788 342 L 788 296 Q 788 288 782 284 Q 776 280 776 274 L 776 266 Z"
+                        fill="url(#gGlass)" stroke="rgba(219,234,254,0.92)" stroke-width="1.8" stroke-linejoin="round" />
+                  <!-- İçindeki Çözelti Sıvısı -->
+                  <g clip-path="url(#clipSampleBottle)">
+                    <g id="traySampleBottle1Liquid" style="transform: translateY(56px); opacity: 0;">
+                      <rect id="traySampleBottle1LiquidRect" x="736" y="296" width="56" height="58" fill="url(#gBeakerWater)" fill-opacity="0.85" />
+                      <ellipse id="traySampleBottle1LiquidSurface" cx="764" cy="296" rx="22" ry="2.5" fill="#bae6fd" fill-opacity="0.7" />
+                    </g>
+                  </g>
+                  <!-- Cam Parlama Vurgusu -->
+                  <path d="M 744 296 L 744 342" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round" />
+                  <path d="M 784 300 L 784 338" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.8" stroke-linecap="round" />
+                  <!-- Beyaz Kapak -->
+                  <g class="sample-white-cap" id="traySampleBottle1Cap" style="transform-origin: 764px 259px; transform: translate3d(0px, 0px, 0px); opacity: 1;">
+                    <rect x="749" y="250" width="30" height="18" rx="3" fill="url(#gWhiteCap)" stroke="#cbd5e1" stroke-width="1.2" />
+                    <path d="M753 253V265M757 253V265M761 253V265M765 253V265M769 253V265M773 253V265M777 253V265" stroke="#94a3b8" stroke-opacity="0.45" stroke-width="1.1" />
+                    <rect x="749" y="250" width="30" height="4" rx="2" fill="#ffffff" fill-opacity="0.9" />
+                  </g>
+                </g>
+
+                <!-- ============ ANALİZ CİHAZI (@img/analizcihazi.png) ============ -->
+                <g class="desk-item" id="itemAnalysisDevice" style="display: none;">
+                  <!-- Masa Üzeri Taban Gölgesi -->
+                  <ellipse cx="580" cy="355" rx="145" ry="12" fill="url(#gShadow)" opacity="0.65" />
+
+                  <!-- Analiz Cihazı Görseli (@img/analizcihazi.png) -->
+                  <image id="itemAnalysisDeviceImg" href="img/analizcihazi.png" xlink:href="img/analizcihazi.png"
+                         x="425" y="125" width="310" height="235" preserveAspectRatio="xMidYMid meet" />
+
+                  <!-- Dijital Ekran Üzeri Durum Panelleri (Standby / Başlıyor / Tamamlandı) -->
+                  <g id="deviceScreenOverlay" pointer-events="none">
+                    <!-- Standby / Bekleme Modu (Varsayılan - Süreç Başlamadı) -->
+                    <g id="screenStateStandby" style="display: inline;">
+                      <circle cx="664" cy="198" r="12" fill="#0284c7" fill-opacity="0.25" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="3 2" />
+                      <circle cx="664" cy="198" r="3.5" fill="#38bdf8" class="screen-standby-pulse" />
+                      <text x="664" y="222" text-anchor="middle" font-size="8.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#ffffff" letter-spacing="0.2">Cihaz Hazır</text>
+                      <text x="664" y="234" text-anchor="middle" font-size="7.5" font-weight="600" font-family="Plus Jakarta Sans, sans-serif" fill="#7dd3fc" letter-spacing="0.3">Beklemede</text>
+                      <rect x="646" y="244" width="36" height="2.5" rx="1.2" fill="#38bdf8" fill-opacity="0.4" />
+                    </g>
+
+                    <!-- İncelemeye Başlıyor Durumu (Butona tıklandığında) -->
+                    <g id="screenStateStarting" style="display: none;">
+                      <g class="screen-spin-group">
+                        <circle cx="664" cy="197" r="12" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="20 12" />
+                      </g>
+                      <circle cx="664" cy="197" r="4" fill="#67e8f9" />
+                      <text x="664" y="220" text-anchor="middle" font-size="7.8" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#ffffff" letter-spacing="0.2">İncelemeye</text>
+                      <text x="664" y="232" text-anchor="middle" font-size="7.8" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#38bdf8" letter-spacing="0.2">Başlıyor...</text>
+                      <rect class="screen-loading-rect" x="644" y="244" width="40" height="3" rx="1.5" fill="#38bdf8" />
+                    </g>
+
+                    <!-- Analiz Tamamlandı Durumu (İnceleme2 sahnesinde) -->
+                    <g id="screenStateCompleted" style="display: none;">
+                      <circle cx="664" cy="197" r="13" fill="#059669" fill-opacity="0.45" stroke="#34d399" stroke-width="1.4" />
+                      <path d="M 658 197 L 662 201 L 670 193" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                      <text x="664" y="220" text-anchor="middle" font-size="8.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#ffffff" letter-spacing="0.2">Analiz</text>
+                      <text x="664" y="232" text-anchor="middle" font-size="7.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif" fill="#86efac" letter-spacing="0.3">tamamlandı</text>
+                      <rect x="644" y="244" width="40" height="3" rx="1.5" fill="#10b981" fill-opacity="0.8" />
+                    </g>
+                  </g>
+
+                  <!-- Mavi Neon Halkalı Güç / Onay Butonu -->
+                  <circle cx="664" cy="302" r="19" fill="none" stroke="#0284c7" stroke-width="1" opacity="0.4" />
+                  <circle class="device-power-ring" cx="664" cy="302" r="15" fill="none" stroke="#38bdf8" stroke-width="2.8" />
+                  <circle cx="664" cy="302" r="12" fill="url(#gPowerButton)" stroke="#1e293b" stroke-width="1" />
+                  <path d="M 664 296 L 664 302" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M 661 298.5 A 4.5 4.5 0 1 0 667 298.5" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" />
+                </g>
+
+                <!-- ============ NUMUNE KABI (SAHNE 3 & 4: DOLU NUMUNE MADDE A ÇÖZELTİSİ) ============ -->
+                <g class="desk-item" id="itemSampleBottle" style="display: none;">
+                  <ellipse cx="764" cy="353" rx="28" ry="5.5" fill="url(#gShadow)" />
+                  <!-- Cam Gövde -->
+                  <path d="M 752 266 L 752 274 Q 752 280 746 284 Q 740 288 740 296 L 740 342 Q 740 352 750 352 L 778 352 Q 788 352 788 342 L 788 296 Q 788 288 782 284 Q 776 280 776 274 L 776 266 Z"
+                        fill="url(#gGlass)" stroke="rgba(219,234,254,0.9)" stroke-width="1.8" stroke-linejoin="round" />
+
+                  <!-- Numune Kabı Ağzı Pozisyon Referans Noktası -->
+                  <circle id="sampleBottleMouthMarker" cx="764" cy="266" r="1.5" opacity="0" pointer-events="none" />
+
+                  <!-- İçindeki Çözelti Sıvısı -->
+                  <g clip-path="url(#clipSampleBottle)">
+                    <g id="sampleBottleLiquid" style="transform: translateY(60px); opacity: 0;">
+                      <rect id="sampleBottleLiquidRect" x="736" y="296" width="56" height="58" fill="url(#gBeakerWater)" fill-opacity="0.85" />
+                      <ellipse id="sampleBottleLiquidSurface" cx="764" cy="296" rx="22" ry="2.5" fill="#bae6fd" fill-opacity="0.7" />
+                    </g>
+                  </g>
+                  <!-- Cam Parlama Vurgusu -->
+                  <path d="M 744 296 L 744 342" stroke="#ffffff" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round" />
+                  <path d="M 784 300 L 784 338" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.8" stroke-linecap="round" />
+                  <!-- Beyaz Etiket: "Numune Madde A Çözeltisi" -->
+                  <g id="sampleBottleLabel" style="opacity: 0; transform-origin: 764px 318px; transform: scale(0.6) translateY(-18px);">
+                    <rect x="746" y="302" width="36" height="34" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+                    <rect x="748" y="304" width="32" height="3.5" fill="#0284c7" rx="1.5" />
+                    <text x="764" y="316" text-anchor="middle" font-size="6.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#0f172a">Numune</text>
+                    <text x="764" y="324" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#0f172a">Madde A</text>
+                    <text x="764" y="332" text-anchor="middle" font-size="6" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#0284c7">Çözeltisi</text>
+                  </g>
+                  <!-- Mavi Kapak (Açılıp kapanabilir animasyonlu grup) -->
+                  <g id="sampleCap" style="transform-origin: 764px 259px; transform: translate3d(0px, 0px, 0px); opacity: 1;">
+                    <rect x="749" y="250" width="30" height="18" rx="3" fill="url(#gCap)" />
+                    <path d="M753 253V265M757 253V265M761 253V265M765 253V265M769 253V265M773 253V265M777 253V265" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.1" />
+                    <rect x="749" y="250" width="30" height="4" rx="2" fill="#93c5fd" fill-opacity="0.6" />
+                  </g>
+                </g>
+
+                <!-- Şeffaf Odacık Ön Cam Yansıma Katmanı (Şişe girdikten sonra odacık içinde görünmesi için) -->
+                <g id="chamberGlassOverlay" pointer-events="none" style="display: none;">
+                  <rect x="458" y="150" width="126" height="162" rx="8" fill="url(#gChamberGlass)" stroke="#38bdf8" stroke-opacity="0.25" stroke-width="1" />
+                  <polygon points="466,152 505,152 474,308 462,308" fill="#ffffff" fill-opacity="0.09" />
+                </g>
+
+                <!-- ============ TEMİZLİK BEZİ (SAHNE: YÜZEYİ TEMİZLE - MİKROFİBER DOKULU, YATAY KATLANMIŞ) ============ -->
+                <g class="desk-item" id="itemCleaningCloth" style="display: none;">
+                  <!-- Masa Üzeri Taban Gölgesi -->
+                  <ellipse cx="395" cy="374" rx="76" ry="8" fill="url(#gShadow)" opacity="0.45" />
+
+                  <!-- Alt Katman (Düzgünce katlanmış alt kısım) -->
+                  <rect x="320" y="344" width="150" height="26" rx="8" fill="#7dd3fc" stroke="#0284c7" stroke-width="1.2" />
+                  <rect x="320" y="344" width="150" height="26" rx="8" fill="url(#pMicrofiber)" />
+                  <line x1="324" y1="362" x2="466" y2="362" stroke="#bae6fd" stroke-width="1.2" stroke-dasharray="3,3" />
+
+                  <!-- Üst Katman (Yatay düzgün katlanmış üst kumaş kanadı) -->
+                  <path d="M 324 332 L 452 332 Q 466 332 464 344 L 462 352 Q 458 358 446 358 L 332 358 Q 320 358 320 346 Q 320 332 324 332 Z"
+                        fill="url(#gMicrofiber)" stroke="#38bdf8" stroke-width="1.4" stroke-linejoin="round" />
+                  <path d="M 324 332 L 452 332 Q 466 332 464 344 L 462 352 Q 458 358 446 358 L 332 358 Q 320 358 320 346 Q 320 332 324 332 Z"
+                        fill="url(#pMicrofiber)" />
+
+                  <!-- Kenar Dikişleri (Mikrofiber bez overlok / dikiş hattı) -->
+                  <path d="M 328 336 L 448 336" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3,2.5" opacity="0.85" />
+                  <path d="M 328 354 L 442 354" stroke="#0284c7" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="3,2.5" opacity="0.6" />
+
+                  <!-- Kumaş Katlanma Işıltısı -->
+                  <path d="M 334 340 Q 390 338 444 340" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.5" fill="none" />
+
+                  <!-- Köşe Kumaş Etiketi -->
+                  <rect x="444" y="340" width="16" height="8" rx="1.5" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.6" />
+                  <text x="452" y="346" font-size="4.2" font-weight="700" text-anchor="middle" fill="#64748b">100%</text>
+                </g>
+
+                <!-- ============ OPAK BEYAZ PLASTİK YÜZEY TEMİZLEYİCİ ŞİŞESİ (SAHNE: YÜZEYİ TEMİZLE) ============ -->
+                <g class="desk-item" id="itemSurfaceCleaner" style="display: none;">
+                  <!-- Masa Üzeri Taban Gölgesi -->
+                  <ellipse cx="620" cy="354" rx="44" ry="7" fill="url(#gShadow)" opacity="0.45" />
+
+                  <!-- Opak Beyaz Plastik Gövde (Kesinlikle şeffaf değil, içi görünmez) -->
+                  <path d="M 605 190 L 605 210 Q 605 220 594 228 Q 580 236 580 250 L 580 342 Q 580 352 590 352 L 650 352 Q 660 352 660 342 L 660 250 Q 660 236 646 228 Q 635 220 635 210 L 635 190 Z"
+                        fill="url(#gWhitePlastic)" stroke="#94a3b8" stroke-width="1.6" stroke-linejoin="round" />
+
+                  <!-- Boyun Boğumu / Yakalık -->
+                  <rect x="603" y="206" width="34" height="5" rx="2" fill="url(#gWhitePlastic)" stroke="#94a3b8" stroke-width="1.1" />
+
+                  <!-- Beyaz Plastik Işık & Gölgelendirme Yansımaları -->
+                  <path d="M 588 245 L 588 344" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" opacity="0.95" />
+                  <path d="M 596 248 L 596 342" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+                  <path d="M 652 245 L 652 342" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" opacity="0.35" />
+
+                  <!-- Silindirik Nervürlü (Tırtıklı) Beyaz Kapak -->
+                  <g class="cleaner-ribbed-cap">
+                    <rect x="602" y="174" width="36" height="28" rx="3" fill="url(#gWhiteCapRibbed)" stroke="#94a3b8" stroke-width="1.2" />
+                    <!-- Üst Kapak Çerçevesi -->
+                    <rect x="602" y="174" width="36" height="5" rx="2" fill="#ffffff" stroke="#94a3b8" stroke-width="1" />
+                    <!-- Dikey Nervürler / Tırtıklar -->
+                    <line x1="606" y1="179" x2="606" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="610" y1="179" x2="610" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="614" y1="179" x2="614" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="618" y1="179" x2="618" y2="199" stroke="#cbd5e1" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="622" y1="179" x2="622" y2="199" stroke="#cbd5e1" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="626" y1="179" x2="626" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="630" y1="179" x2="630" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                    <line x1="634" y1="179" x2="634" y2="199" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" />
+                  </g>
+
+                  <!-- İnce Çerçeveli Beyaz Etiket: "Onaylı" / "Yüzey" / "Temizleyici" -->
+                  <g class="cleaner-label-group">
+                    <rect x="590" y="255" width="60" height="68" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" />
+                    <rect x="593" y="258" width="54" height="62" rx="2.5" fill="none" stroke="#cbd5e1" stroke-width="0.9" />
+                    <line x1="602" y1="264" x2="638" y2="264" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round" />
+                    <text x="620" y="280" text-anchor="middle" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#000000" letter-spacing="0.2">Onaylı</text>
+                    <text x="620" y="296" text-anchor="middle" font-size="9.5" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#000000" letter-spacing="0.2">Yüzey</text>
+                    <text x="620" y="312" text-anchor="middle" font-size="8.8" font-weight="800" font-family="Plus Jakarta Sans, sans-serif" fill="#000000" letter-spacing="0.1">Temizleyici</text>
+                  </g>
+                </g>
+
+                <!-- ============ METAL TEPSİ + KARIŞTIRMA ÇUBUĞU ============ -->
+                <g id="itemTrayWrap" transform="translate(-80, 0)">
+                <g class="desk-item" id="itemTray" style="--d:0.36s">
+                  <ellipse cx="450" cy="395" rx="126" ry="6" fill="url(#gShadow)" />
+                  <path d="M352 364 L548 364 L560 386 Q562 393 553 393 L347 393 Q338 393 340 386 Z" fill="url(#gMetal)" stroke="#e2e8f0" stroke-opacity="0.6" />
+                  <path d="M362 368 L538 368 L547 385 L353 385 Z" fill="url(#gMetalInner)" />
+                  <line x1="352" y1="364.5" x2="548" y2="364.5" stroke="#ffffff" stroke-opacity="0.85" />
+                  <line x1="392" y1="381" x2="496" y2="379.5" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+                  <ellipse cx="508" cy="378.8" rx="12" ry="4.5" fill="url(#gMetal)" stroke="#e2e8f0" stroke-width="0.8" />
+                  <g id="stirRod">
+                    <line x1="365" y1="375" x2="535" y2="369" stroke="rgba(224,242,254,0.92)" stroke-width="5" stroke-linecap="round" />
+                    <line x1="368" y1="374" x2="532" y2="368" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.9" />
+                  </g>
+                </g>
+                </g>
+
+                <!-- ============ BEYAZ PED (SİLİKON/ÇALIŞMA MATI) ============ -->
+                <g id="itemWhitePadWrap" transform="translate(-80, 0)">
+                <g class="desk-item" id="itemWhitePad" style="--d:0.4s">
+                  <ellipse cx="650" cy="395" rx="76" ry="6" fill="url(#gShadow)" />
+                  <rect x="580" y="363" width="140" height="32" rx="7" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+                  <rect x="586" y="367" width="128" height="24" rx="4" fill="none" stroke="#60a5fa" stroke-width="0.9" stroke-opacity="0.8" />
+                  <line x1="588" y1="365" x2="712" y2="365" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" />
+                </g>
+                </g>
+
+                <!-- ============ SAF SU ŞİŞESİ ============ -->
+                <g id="itemWaterWrap" transform="translate(-80, 0)">
+                <g class="desk-item" id="itemWater" style="--d:0.12s">
+                  <ellipse cx="340" cy="353" rx="54" ry="6.5" fill="url(#gShadow)" />
+                  <g id="bottleWater">
+                    <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z" fill="url(#gGlass)" />
+                    <g clip-path="url(#clipWater)">
+                      <g id="waterInner">
+                        <path d="M260 220 Q340 229 420 220 L420 380 L260 380 Z" fill="url(#gWater)" />
+                        <path d="M280 221.5 Q340 230 400 221.5" fill="none" stroke="#f0f9ff" stroke-opacity="0.85" stroke-width="1.6" />
+                      </g>
+                    </g>
+                    <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z"
+                          fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.2" stroke-linejoin="round" />
+                    <path d="M309 228 L309 336" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" />
+                    <path d="M371 234 L371 330" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.5" stroke-linecap="round" />
+                    <rect x="321" y="166" width="38" height="7" rx="2" fill="rgba(219,234,254,0.35)" stroke="rgba(219,234,254,0.8)" stroke-width="1.2" />
+                    <rect x="306" y="262" width="68" height="42" rx="5" fill="#ffffff" />
+                    <path d="M306 267 Q306 262 311 262 L369 262 Q374 262 374 267 L374 271 L306 271 Z" fill="#2563eb" />
+                    <text x="340" y="289" text-anchor="middle" font-size="15" font-weight="800" fill="#0f2a52">Saf Su</text>
+                    <text x="340" y="299" text-anchor="middle" font-size="7" font-weight="600" fill="#475569">H₂O · 500 mL</text>
+                    <g id="waterCap">
+                      <rect x="319" y="146" width="42" height="26" rx="4" fill="url(#gCap)" />
+                      <path d="M325 151V168M330 151V168M335 151V168M340 151V168M345 151V168M350 151V168M355 151V168" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.2" />
+                      <rect x="319" y="146" width="42" height="5" rx="2.5" fill="#93c5fd" fill-opacity="0.6" />
+                    </g>
+                  </g>
+                </g>
+                </g>
+
+                <!-- ============ MADDE A ŞİŞESİ ============ -->
+                <g id="itemJarWrap" transform="translate(-80, 0)">
+                <g class="desk-item" id="itemJar" style="--d:0s">
+                  <ellipse cx="190" cy="353" rx="64" ry="7" fill="url(#gShadow)" />
+                  <g id="jarA">
+                    <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z" fill="url(#gGlass)" />
+                    <g clip-path="url(#clipJar)">
+                      <g id="pillsInner"></g>
+                    </g>
+                    <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z"
+                          fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.2" stroke-linejoin="round" />
+                    <path d="M151 236 L151 338" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" />
+                    <path d="M229 240 L229 332" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.5" stroke-linecap="round" />
+                    <rect x="157" y="194" width="66" height="7" rx="2" fill="rgba(219,234,254,0.35)" stroke="rgba(219,234,254,0.8)" stroke-width="1.2" />
+                    <rect x="150" y="226" width="80" height="38" rx="5" fill="#ffffff" />
+                    <path d="M150 231 Q150 226 155 226 L225 226 Q230 226 230 231 L230 234 L150 234 Z" fill="#1d4ed8" />
+                    <text x="190" y="252" text-anchor="middle" font-size="16" font-weight="800" fill="#0f2a52">Madde A</text>
+                    <text x="190" y="260.5" text-anchor="middle" font-size="7" font-weight="600" fill="#475569">Saf · 250 g</text>
+                    <g id="jarCap">
+                      <rect x="150" y="170" width="80" height="30" rx="5" fill="url(#gCap)" />
+                      <path d="M158 175V194M165 175V194M172 175V194M179 175V194M186 175V194M193 175V194M200 175V194M207 175V194M214 175V194M221 175V194" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.3" />
+                      <rect x="150" y="170" width="80" height="6" rx="3" fill="#93c5fd" fill-opacity="0.6" />
+                      <rect x="152" y="195" width="76" height="4" rx="2" fill="#1e3a8a" />
+                    </g>
+                  </g>
+                </g>
+                </g>
+              </svg>
+            </div>
+          </article>
+
+          <!-- ================= SAĞ PANEL: KONTROL LİSTESİ ================= -->
+          <aside class="panel panel-check" id="panel-check" aria-labelledby="check-title">
+            <header class="panel-head">
+              <div>
+                <h2 class="panel-title" id="check-title">
+                  <span class="title-spark-left" aria-hidden="true">
+                    <svg viewBox="0 0 24 20" class="spark-svg"><path d="M4 14 L10 12 M2 7 L9 9 M7 2 L11 7" stroke="#fbbf24" stroke-width="2.6" stroke-linecap="round"/></svg>
+                  </span>
+                  <span id="check-title-text">KONTROL LİSTESİ</span>
+                  <span class="title-spark-right" aria-hidden="true">
+                    <svg viewBox="0 0 24 20" class="spark-svg"><path d="M20 14 L14 12 M22 7 L15 9 M17 2 L13 7" stroke="#fbbf24" stroke-width="2.6" stroke-linecap="round"/></svg>
+                  </span>
+                </h2>
+                <p class="panel-sub" id="check-sub">İşe başlamadan önce aşağıdaki adımları onayla.</p>
+              </div>
+              <div class="badge-circle" id="check-badge-circle" aria-label="3 adım">
+                <svg class="ring" viewBox="0 0 60 60" aria-hidden="true">
+                  <circle class="ring-track" cx="30" cy="30" r="27" />
+                  <circle class="ring-fill" id="ring-fill" cx="30" cy="30" r="27" pathLength="100" />
+                </svg>
+                <strong id="badge-count-num">3</strong>
+                <span id="badge-count-label">ADIM</span>
+              </div>
+            </header>
+
+            <!-- ================= GÖRÜNÜM 1: KONTROL LİSTESİ ================= -->
+            <div class="check-view-container" id="check-view-container">
+              <ol class="check-list" id="check-list">
+                <li style="--i:0">
+                  <button type="button" class="step-card is-pending is-locked" id="step-materials" data-state="locked">
+                    <span class="step-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3" /><path d="M7.4 15h9.2" /><circle cx="10.5" cy="17.6" r="0.6" fill="currentColor" /><circle cx="13.6" cy="18.3" r="0.6" fill="currentColor" /></svg>
+                      <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body">
+                      <span class="step-title">Malzemeleri Seç</span>
+                      <span class="step-status"><span class="step-no">01</span><span class="step-status-text">Önce masayı temizle</span></span>
+                    </span>
+                    <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+                  </button>
+                </li>
+
+                <li style="--i:1">
+                  <button type="button" class="step-card is-pending is-active" id="step-workspace" data-state="active">
+                    <span class="step-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2" /><path d="M9 3h6v3H9z" /><path d="m8.6 13.4 2.4 2.4 4.6-4.8" /></svg>
+                      <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body">
+                      <span class="step-title">Çalışma Alanını Kontrol Et</span>
+                      <span class="step-status"><span class="step-no">02</span><span class="step-status-text">Sıradaki adım</span></span>
+                    </span>
+                    <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+                  </button>
+                </li>
+
+                <li style="--i:2">
+                  <button type="button" class="step-card is-pending is-locked" id="step-label" data-state="locked" aria-disabled="true" style="--icon-bg:#fff3e0; --icon-fg:#ea580c;">
+                    <span class="step-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" /><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor" /></svg>
+                      <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body">
+                      <span class="step-title">Kabı Etiketle</span>
+                      <span class="step-status"><span class="step-no">03</span><span class="step-status-text">Bekliyor</span></span>
+                    </span>
+                    <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+                  </button>
+                </li>
+
+                <!-- 4. Adım: Çözeltiyi Hazırla (İleride kullanılacağı için kodları korunarak saklanmıştır)
+                <li style="--i:3" id="step-prepare-item">
+                  <button type="button" class="step-card is-pending is-locked" id="step-prepare" data-state="locked" aria-disabled="true" style="--icon-bg:#e0efff; --icon-fg:#2563eb;">
+                    <span class="step-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M10 8.4v7.2l6-3.6z" fill="currentColor" /></svg>
+                      <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body">
+                      <span class="step-title">Çözeltiyi Hazırla</span>
+                      <span class="step-status"><span class="step-no">04</span><span class="step-status-text">Bekliyor</span></span>
+                    </span>
+                    <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+                  </button>
+                </li>
+                -->
+              </ol>
+
+              <footer class="check-footer">
+                <div class="progress-meta"><span>İlerleme</span><strong id="progress-text">0 / 3</strong></div>
+                <div class="progress-track" role="progressbar" aria-label="Kontrol listesi ilerlemesi" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" id="progress-track">
+                  <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                </div>
+              </footer>
+            </div>
+
+            <!-- ================= GÖRÜNÜM 2: ÇÖZELTİ HAZIRLAMA (3 YENİ BUTON) ================= -->
+            <div class="solution-view-container" id="solution-view-container" style="display: none;">
+              <ol class="solution-list" id="solution-list">
+                <!-- 1. Madde A'yı Ekle -->
+                <li style="--i:0">
+                  <button type="button" class="step-card solution-action-card" id="btn-action-jar" aria-label="Madde A'yı Ekle">
+                    <span class="step-icon sol-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" class="sol-icon-svg" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 4h10M9 4v3l-3 3v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9l-3-3V4" stroke="currentColor" stroke-width="2" />
+                        <rect x="8" y="13" width="8" height="5" rx="1" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.2" />
+                        <text x="12" y="17" text-anchor="middle" font-size="5" font-weight="800" fill="currentColor">A</text>
+                      </svg>
+                      <span class="step-check sol-step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body sol-content">
+                      <strong class="step-title sol-title">Madde A'yı Ekle</strong>
+                      <span class="step-status sol-desc">Saf katı reaktifi behere aktar</span>
+                    </span>
+                    <span class="step-arrow sol-arrow" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg>
+                    </span>
+                  </button>
+                </li>
+
+                <!-- 2. Saf Suyu Ekle -->
+                <li style="--i:1">
+                  <button type="button" class="step-card solution-action-card" id="btn-action-water" aria-label="Saf Suyu Ekle">
+                    <span class="step-icon sol-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" class="sol-icon-svg" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 2h4M10 2v4l-4 6v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-4-6V2" stroke="currentColor" stroke-width="2" />
+                        <path d="M7 16 Q12 13 17 16" fill="currentColor" fill-opacity="0.35" stroke="currentColor" stroke-width="1.5" />
+                        <text x="12" y="18" text-anchor="middle" font-size="4" font-weight="800" fill="currentColor">H₂O</text>
+                      </svg>
+                      <span class="step-check sol-step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body sol-content">
+                      <strong class="step-title sol-title">Saf Suyu Ekle</strong>
+                      <span class="step-status sol-desc">150 mL distile su ilave et</span>
+                    </span>
+                    <span class="step-arrow sol-arrow" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg>
+                    </span>
+                  </button>
+                </li>
+
+                <!-- 3. Karıştır -->
+                <li style="--i:2">
+                  <button type="button" class="step-card solution-action-card" id="btn-action-stir" aria-label="Karıştır">
+                    <span class="step-icon sol-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" class="sol-icon-svg" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 4H5v14a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V4z" stroke="currentColor" stroke-width="2" />
+                        <line x1="16" y1="2" x2="10" y2="18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" />
+                        <ellipse cx="12" cy="14" rx="5" ry="2" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.2" />
+                      </svg>
+                      <span class="step-check sol-step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                    </span>
+                    <span class="step-body sol-content">
+                      <strong class="step-title sol-title">Karıştır</strong>
+                      <span class="step-status sol-desc">Cam baget ile homojen karıştır</span>
+                    </span>
+                    <span class="step-arrow sol-arrow" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg>
+                    </span>
+                  </button>
+                </li>
+              </ol>
+
+              <!-- YENİ GERİ AL İŞLEM ÇUBUĞU -->
+              <div class="solution-actions-row">
+                <button type="button" class="btn-undo-action" id="btn-undo-solution" aria-label="Son İşlemi Geri Al" disabled>
+                  <svg viewBox="0 0 24 24" class="btn-undo-icon" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 7v6h6" />
+                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+                  </svg>
+                  <span class="btn-undo-text">Son İşlemi Geri Al</span>
+                </button>
+              </div>
+
+              <p class="solution-hint-text">Seçtiğin işlemin sonucu çalışma masasında görünür.</p>
+            </div>
+
+            <!-- ================= GÖRÜNÜM 3: HAZIRLANAN ÇÖZELTİ (SAHNE 3) ================= -->
+            <div class="stage3-view-container" id="stage3-view-container" style="display: none;">
+              <ol class="stage3-list" id="stage3-list">
+                <!-- 1. Çözeltiyi Aktar ve Etiketle -->
+                <li>
+                  <button type="button" class="stage3-action-card" id="btn-stage3-transfer" aria-label="Çözeltiyi Aktar ve Etiketle">
+                    <span class="stage3-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                        <line x1="7" y1="7" x2="7.01" y2="7" stroke-width="3" />
+                      </svg>
+                    </span>
+                    <span class="stage3-card-body">
+                      <strong class="stage3-card-title">Çözeltiyi Aktar ve Etiketle</strong>
+                    </span>
+                    <span class="stage3-arrow-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 6 6 6-6 6" />
+                      </svg>
+                    </span>
+                  </button>
+                </li>
+
+                <!-- 2. Numune İçin Ayır -->
+                <li>
+                  <button type="button" class="stage3-action-card" id="btn-stage3-sample" aria-label="Numune İçin Ayır">
+                    <span class="stage3-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="7" y="3" width="10" height="5" rx="1.5" fill="currentColor" fill-opacity="0.25" />
+                        <path d="M8 8v3l-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8l-2-2V8" />
+                        <line x1="9" y1="15" x2="15" y2="15" />
+                      </svg>
+                    </span>
+                    <span class="stage3-card-body">
+                      <strong class="stage3-card-title">Numune İçin Ayır</strong>
+                    </span>
+                    <span class="stage3-arrow-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 6 6 6-6 6" />
+                      </svg>
+                    </span>
+                  </button>
+                </li>
+
+                <!-- 3. Malzemeleri Kaldır -->
+                <li>
+                  <button type="button" class="stage3-action-card" id="btn-stage3-cleanup" aria-label="Malzemeleri Kaldır">
+                    <span class="stage3-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                      </svg>
+                    </span>
+                    <span class="stage3-card-body">
+                      <strong class="stage3-card-title">Malzemeleri Kaldır</strong>
+                    </span>
+                    <span class="stage3-arrow-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m9 6 6 6-6 6" />
+                      </svg>
+                    </span>
+                  </button>
+                </li>
+              </ol>
+
+              <!-- Alt Açıklama: Butonların hemen altına ortalanmış -->
+              <p class="stage3-foot-hint">Çözelti hazırlandı. Vardiyadaki sonraki iş için hazırlığını tamamla.</p>
+            </div>
+
+            <!-- ================= GÖRÜNÜM 4: NUMUNEYİ İNCELE (SAHNE 4) ================= -->
+            <div class="stage4-view-container" id="stage4-view-container" style="display: none;">
+              <div class="stage4-content-wrap">
+                <ol class="stage4-list" id="stage4-list">
+                  <!-- 1. Numune Kabını Seç -->
+                  <li>
+                    <button type="button" class="stage4-action-card" id="btn-stage4-step1" aria-label="Numune Kabını Seç">
+                      <span class="stage4-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="7" y="2" width="10" height="4" rx="1.5" fill="currentColor" fill-opacity="0.25" />
+                          <path d="M8 6v2l-2 3v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9l-2-3V6" />
+                          <line x1="9" y1="15" x2="15" y2="15" />
+                          <line x1="10" y1="18" x2="14" y2="18" />
+                        </svg>
+                      </span>
+                      <span class="stage4-card-body">
+                        <strong class="stage4-card-title">Numune Kabını Seç</strong>
+                      </span>
+                      <span class="stage4-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- 2. Analiz Alanını Seç -->
+                  <li>
+                    <button type="button" class="stage4-action-card" id="btn-stage4-step2" aria-label="Analiz Alanını Seç">
+                      <span class="stage4-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="2" y="7" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.25" />
+                          <line x1="5" y1="11" x2="5" y2="21" />
+                          <line x1="19" y1="11" x2="19" y2="21" />
+                          <line x1="5" y1="16" x2="19" y2="16" stroke-dasharray="2 2" />
+                          <path d="M8 4h3v3H8z" />
+                          <path d="M14 5l2-1v3h-2z" />
+                        </svg>
+                      </span>
+                      <span class="stage4-card-body">
+                        <strong class="stage4-card-title">Analiz Alanını Seç</strong>
+                      </span>
+                      <span class="stage4-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- 3. Numuneyi Yerleştir -->
+                  <li>
+                    <button type="button" class="stage4-action-card" id="btn-stage4-step3" aria-label="Numuneyi Yerleştir">
+                      <span class="stage4-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 4h14v12a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V4z" fill="currentColor" fill-opacity="0.15" />
+                          <line x1="12" y1="3" x2="12" y2="13" stroke-width="2.5" />
+                          <polyline points="9 10 12 13 15 10" stroke-width="2.5" />
+                        </svg>
+                      </span>
+                      <span class="stage4-card-body">
+                        <strong class="stage4-card-title">Numuneyi Yerleştir</strong>
+                      </span>
+                      <span class="stage4-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+
+                <!-- Bilgi Notu: küçük punto ve koyu mavi renkli font -->
+                <p class="stage4-foot-hint" id="stage4-foot-hint">Seçimlerin, numunenin incelenmeye uygunluğunu etkiler.</p>
+              </div>
+            </div>
+
+            <!-- ================= GÖRÜNÜM 5: ANALİZ SONUCU (SAHNE: İNCELEME2) ================= -->
+            <div class="inceleme2-view-container" id="inceleme2-view-container" style="display: none;">
+              <div class="inceleme2-content-wrap">
+                <div class="inceleme2-cards-list">
+                  <!-- Satır 1: Sol tarafta yeşil dairesel zemin içinde bir 'numune kabı' ikonu; ortada "Numune: Madde A Çözeltisi" yazısı; sağda onay rozeti -->
+                  <div class="inceleme2-card">
+                    <div class="inceleme2-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="7" y="2" width="10" height="4" rx="1.5" fill="currentColor" fill-opacity="0.25" />
+                        <path d="M8 6v2l-2 3v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9l-2-3V6" />
+                        <line x1="9" y1="15" x2="15" y2="15" />
+                        <line x1="10" y1="18" x2="14" y2="18" />
+                      </svg>
+                    </div>
+                    <div class="inceleme2-card-text">
+                      Numune: Madde A Çözeltisi
+                    </div>
+                    <div class="inceleme2-check-badge" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                    </div>
+                  </div>
+
+                  <!-- Satır 2: Sol tarafta yeşil dairesel zemin içinde bir 'su damlası' ikonu; ortada "Görünüm: Berrak" yazısı; sağda onay rozeti -->
+                  <div class="inceleme2-card">
+                    <div class="inceleme2-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="currentColor" fill-opacity="0.25" />
+                      </svg>
+                    </div>
+                    <div class="inceleme2-card-text">
+                      Görünüm: Berrak
+                    </div>
+                    <div class="inceleme2-check-badge" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                    </div>
+                  </div>
+
+                  <!-- Satır 3: Sol tarafta yeşil dairesel zemin içinde bir 'büyüteç' ikonu; ortada "Gözle görülür parçacık: Yok" yazısı; sağda onay rozeti -->
+                  <div class="inceleme2-card">
+                    <div class="inceleme2-icon-box" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="7" fill="currentColor" fill-opacity="0.25" />
+                        <line x1="16.5" y1="16.5" x2="21.5" y2="21.5" stroke-width="2.8" />
+                      </svg>
+                    </div>
+                    <div class="inceleme2-card-text">
+                      Gözle görülür parçacık: Yok
+                    </div>
+                    <div class="inceleme2-check-badge" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Alt Bilgi Notu: Panelin en alt kısmına, küçük punto ve koyu mavi fontla şu uyarı metni eklensin: "Bu sonuç, maddenin kimliğini belirlemez." -->
+                <p class="inceleme2-foot-hint" id="inceleme2-foot-hint">Bu sonuç, maddenin kimliğini belirlemez.</p>
+              </div>
+            </div>
+
+            <!-- ================= GÖRÜNÜM 6: ÇALIŞMA YÜZEYİNİ TEMİZLE (SAHNE: YÜZEYİ TEMİZLE) ================= -->
+            <div class="clean-surface-view-container" id="clean-surface-view-container" style="display: none;">
+              <div class="clean-surface-content-wrap">
+                <ol class="clean-surface-list" id="clean-surface-list">
+                  <!-- Buton 1: İkon olarak 'üzerinde çizgiler olan bir belge/liste' simgesi; Metin olarak "Malzemeleri Kaldır" yazsın. -->
+                  <li>
+                    <button type="button" class="clean-surface-card" id="btn-clean-step1" aria-label="Malzemeleri Kaldır">
+                      <span class="clean-surface-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                          <line x1="10" y1="9" x2="8" y2="9" />
+                        </svg>
+                      </span>
+                      <span class="clean-surface-card-body">
+                        <strong class="clean-surface-card-title">Malzemeleri Kaldır</strong>
+                      </span>
+                      <span class="clean-surface-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Buton 2: İkon olarak 'büyüteç' simgesi; Metin olarak "Temizleyiciyi Seç" yazsın. -->
+                  <li>
+                    <button type="button" class="clean-surface-card" id="btn-clean-step2" aria-label="Temizleyiciyi Seç">
+                      <span class="clean-surface-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="11" cy="11" r="7" />
+                          <line x1="16.5" y1="16.5" x2="21.5" y2="21.5" stroke-width="2.8" />
+                        </svg>
+                      </span>
+                      <span class="clean-surface-card-body">
+                        <strong class="clean-surface-card-title">Temizleyiciyi Seç</strong>
+                      </span>
+                      <span class="clean-surface-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+
+                  <!-- Buton 3: İkon olarak 'bir yüzeyi silen el' simgesi; Metin olarak "Yüzeyi Temizle" yazsın. -->
+                  <li>
+                    <button type="button" class="clean-surface-card" id="btn-clean-step3" aria-label="Yüzeyi Temizle">
+                      <span class="clean-surface-icon-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v3" />
+                          <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v7" />
+                          <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+                          <path d="M18 8a2 2 0 0 1 2 2v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-5.65-4.08l-1.07-3.2a1.5 1.5 0 0 1 2.37-1.63L9 12" />
+                          <path d="M3 21h18" stroke-dasharray="2 2" stroke-width="2.4" />
+                        </svg>
+                      </span>
+                      <span class="clean-surface-card-body">
+                        <strong class="clean-surface-card-title">Yüzeyi Temizle</strong>
+                      </span>
+                      <span class="clean-surface-arrow-box" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="m9 6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- 4. HAZIRLAMAYA BAŞLA / HAZIRLAMAYI TAMAMLA BUTONU -->
+      <div class="start-prep-container" id="start-prep-container">
+        <button id="btn-start-prep" class="btn-shift-action btn-start-prep is-disabled" type="button" aria-label="Hazırlamaya Başla" disabled>
+          <div class="btn-action-plate">
+            <img src="img/btn.png" alt="" class="btn-action-img" draggable="false" />
+            <span class="btn-action-text" id="btn-start-prep-text">HAZIRLAMAYA BAŞLA</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- 5. GÖREV PLANINI GÖR / ÖNCEKİ EKRAN BUTONU -->
+      <div class="view-task-plan-container" id="view-task-plan-container">
+        <button type="button" class="btn-view-task-plan" id="btn-view-task-plan" aria-label="Görev Planını Gör">
+          <span class="view-plan-icon-wrap" id="view-plan-icon-wrap">
+            <svg viewBox="0 0 24 24" class="view-plan-icon" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </span>
+          <span class="view-plan-text" id="view-plan-btn-text">Görev Planını Gör</span>
+        </button>
+      </div>
+
+      <!-- ========================================================
+           3. & 4. MALZEMELERİ SEÇ PENCERESİ (MODAL SİSTEMİ)
+           ======================================================== -->
+      <div class="materials-modal-backdrop" id="materials-modal-backdrop" aria-hidden="true">
+        <div class="materials-modal" id="materials-modal" role="dialog" aria-modal="true" aria-labelledby="modal-materials-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-materials-title">Laboratuvar Malzeme Dolabı</h2>
+                <p class="modal-sub">Çözelti hazırlama protokolü için gerekli malzemeleri seçip masaya ekleyin.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-materials-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <!-- DİKKAT ÇEKİCİ GÜVENLİK / HATA UYARI ALANI -->
+          <div class="modal-alert-banner" id="modal-alert-banner" role="alert" aria-live="assertive">
+            <div class="alert-icon-box" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div class="alert-content">
+              <strong class="alert-title">İŞ SAĞLIĞI VE GÜVENLİĞİ İHLALİ!</strong>
+              <p class="alert-text" id="modal-alert-text">HATA: Üzerinde etiket bulunmayan kimyasallar iş güvenliği kuralları gereği kullanılamaz!</p>
+            </div>
+          </div>
+
+          <!-- MALZEME SEÇİM KARTLARI GRİDİ -->
+          <div class="modal-grid" id="modal-materials-grid">
+            <!-- 1. MADDE A -->
+            <button type="button" class="material-card" data-item="jar" id="mcard-jar" aria-label="Madde A Kavanozu Ekle">
+              <div class="card-badge card-badge-req">Protokol Reaktifi</div>
+              <div class="card-svg-wrap">
+                <svg viewBox="0 0 100 120" class="material-svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="mJarCap" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1e3a8a" />
+                      <stop offset="50%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#1e3a8a" />
+                    </linearGradient>
+                    <linearGradient id="mJarGlass" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="rgba(147,197,253,0.35)" />
+                      <stop offset="30%" stop-color="rgba(255,255,255,0.7)" />
+                      <stop offset="70%" stop-color="rgba(191,219,254,0.4)" />
+                      <stop offset="100%" stop-color="rgba(147,197,253,0.3)" />
+                    </linearGradient>
+                    <linearGradient id="mPillsGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="50" cy="112" rx="34" ry="5" fill="rgba(0,0,0,0.3)" />
+                  <path d="M30 36 L30 40 Q30 45 22 48 L22 104 Q22 110 32 110 L68 110 Q78 110 78 104 L78 48 Q70 45 70 40 L70 36 Z" fill="url(#mJarGlass)" stroke="#93c5fd" stroke-width="1.6" />
+                  <rect x="25" y="70" width="50" height="38" rx="4" fill="url(#mPillsGrad)" fill-opacity="0.85" />
+                  <line x1="28" y1="52" x2="28" y2="102" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.6" />
+                  <rect x="26" y="52" width="48" height="28" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+                  <rect x="26" y="52" width="48" height="7" rx="2" fill="#1d4ed8" />
+                  <text x="50" y="70" text-anchor="middle" font-size="9" font-weight="800" fill="#0f2a52" font-family="Plus Jakarta Sans, sans-serif">Madde A</text>
+                  <text x="50" y="76" text-anchor="middle" font-size="5" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans, sans-serif">Saf · 250 g</text>
+                  <rect x="26" y="24" width="48" height="15" rx="3" fill="url(#mJarCap)" stroke="#60a5fa" stroke-width="1" />
+                  <line x1="32" y1="26" x2="32" y2="37" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="41" y1="26" x2="41" y2="37" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="50" y1="26" x2="50" y2="37" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="59" y1="26" x2="59" y2="37" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="68" y1="26" x2="68" y2="37" stroke="#ffffff" stroke-width="1" stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="card-info">
+                <strong class="card-title">Madde A Kavanozu</strong>
+                <span class="card-desc">Saf katı reaktif (250 g). Çözelti için protokol gereksinimidir.</span>
+              </div>
+              <div class="card-action">
+                <span class="action-btn">Masaya Ekle +</span>
+              </div>
+            </button>
+
+            <!-- 2. SAF SU -->
+            <button type="button" class="material-card" data-item="water" id="mcard-water" aria-label="Saf Su Şişesi Ekle">
+              <div class="card-badge card-badge-req">Protokol Çözücüsü</div>
+              <div class="card-svg-wrap">
+                <svg viewBox="0 0 100 120" class="material-svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="mWaterCap" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1e40af" />
+                      <stop offset="50%" stop-color="#60a5fa" />
+                      <stop offset="100%" stop-color="#1e40af" />
+                    </linearGradient>
+                    <linearGradient id="mWaterFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(56,189,248,0.7)" />
+                      <stop offset="100%" stop-color="rgba(14,165,233,0.85)" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="50" cy="112" rx="28" ry="5" fill="rgba(0,0,0,0.3)" />
+                  <path d="M42 28 L42 36 Q42 42 34 46 L34 104 Q34 110 42 110 L58 110 Q66 110 66 104 L66 46 Q58 42 58 36 L58 28 Z" fill="rgba(224,242,254,0.4)" stroke="#7dd3fc" stroke-width="1.6" />
+                  <rect x="36" y="56" width="28" height="52" rx="2" fill="url(#mWaterFill)" />
+                  <ellipse cx="50" cy="56" rx="14" ry="2.5" fill="#bae6fd" />
+                  <line x1="39" y1="46" x2="39" y2="104" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-opacity="0.6" />
+                  <rect x="36" y="68" width="28" height="26" rx="2.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.7" />
+                  <rect x="36" y="68" width="28" height="6" rx="1.5" fill="#2563eb" />
+                  <text x="50" y="83" text-anchor="middle" font-size="7" font-weight="800" fill="#0f2a52" font-family="Plus Jakarta Sans, sans-serif">Saf Su</text>
+                  <text x="50" y="89" text-anchor="middle" font-size="4.5" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans, sans-serif">H₂O · 500 mL</text>
+                  <rect x="40" y="16" width="20" height="13" rx="2.5" fill="url(#mWaterCap)" stroke="#93c5fd" stroke-width="0.9" />
+                  <line x1="45" y1="18" x2="45" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                  <line x1="50" y1="18" x2="50" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                  <line x1="55" y1="18" x2="55" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="card-info">
+                <strong class="card-title">Saf Su Şişesi</strong>
+                <span class="card-desc">Distile çözücü (500 mL). Reaktifin çözülmesi için gereklidir.</span>
+              </div>
+              <div class="card-action">
+                <span class="action-btn">Masaya Ekle +</span>
+              </div>
+            </button>
+
+            <!-- 3. BEHER 250 mL -->
+            <button type="button" class="material-card" data-item="beaker" id="mcard-beaker" aria-label="250 mL Beher Ekle">
+              <div class="card-badge card-badge-req">Protokol Kabı</div>
+              <div class="card-svg-wrap">
+                <svg viewBox="0 0 100 120" class="material-svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="mBeakerGlass" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="rgba(147,197,253,0.3)" />
+                      <stop offset="35%" stop-color="rgba(255,255,255,0.65)" />
+                      <stop offset="100%" stop-color="rgba(147,197,253,0.25)" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="50" cy="112" rx="36" ry="5" fill="rgba(0,0,0,0.3)" />
+                  <path d="M22 28 Q26 29 27 34 L27 104 Q27 110 35 110 L65 110 Q73 110 73 104 L73 34 Q74 29 78 28 Z" fill="url(#mBeakerGlass)" stroke="#93c5fd" stroke-width="1.6" stroke-linejoin="round" />
+                  <line x1="20" y1="28" x2="80" y2="28" stroke="#e0f2fe" stroke-width="2.2" stroke-linecap="round" />
+                  <line x1="30" y1="96" x2="42" y2="96" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+                  <line x1="30" y1="82" x2="45" y2="82" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
+                  <line x1="30" y1="68" x2="42" y2="68" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+                  <line x1="30" y1="54" x2="45" y2="54" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
+                  <line x1="30" y1="40" x2="42" y2="40" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+                  <text x="49" y="84" font-size="6" font-weight="700" fill="#e0f2fe" font-family="Plus Jakarta Sans, sans-serif">100</text>
+                  <text x="49" y="56" font-size="6" font-weight="700" fill="#e0f2fe" font-family="Plus Jakarta Sans, sans-serif">200</text>
+                  <rect x="46" y="66" width="22" height="20" rx="2" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.5)" stroke-dasharray="2 2" />
+                  <text x="57" y="78" text-anchor="middle" font-size="4" font-weight="700" fill="rgba(255,255,255,0.7)" font-family="Plus Jakarta Sans, sans-serif">ETİKET</text>
+                  <text x="57" y="44" text-anchor="middle" font-size="7" font-weight="800" fill="#bae6fd" font-family="Plus Jakarta Sans, sans-serif">250 mL</text>
+                  <line x1="31" y1="36" x2="31" y2="102" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5" />
+                </svg>
+              </div>
+              <div class="card-info">
+                <strong class="card-title">250 mL Dereceli Beher</strong>
+                <span class="card-desc">Borosilikat cam kap. Çözelti ve etiketleme için ana kaptır.</span>
+              </div>
+              <div class="card-action">
+                <span class="action-btn">Masaya Ekle +</span>
+              </div>
+            </button>
+
+            <!-- 4. ETİKETSİZ ŞİŞE (HATA VERECEK OLAN ŞİŞE - AYNI RENK PALETİ VE ŞİŞE TASARIMI) -->
+            <button type="button" class="material-card card-unlabeled" data-item="unlabeled" id="mcard-unlabeled" aria-label="Etiketsiz Şişeyi Seç">
+              <div class="card-badge card-badge-req">Laboratuvar Şişesi</div>
+              <div class="card-svg-wrap">
+                <svg viewBox="0 0 100 120" class="material-svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="mUnlabeledCap" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#1e40af" />
+                      <stop offset="50%" stop-color="#60a5fa" />
+                      <stop offset="100%" stop-color="#1e40af" />
+                    </linearGradient>
+                    <linearGradient id="mUnlabeledFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(56,189,248,0.7)" />
+                      <stop offset="100%" stop-color="rgba(14,165,233,0.85)" />
+                    </linearGradient>
+                  </defs>
+                  <ellipse cx="50" cy="112" rx="28" ry="5" fill="rgba(0,0,0,0.3)" />
+                  <path d="M42 28 L42 36 Q42 42 34 46 L34 104 Q34 110 42 110 L58 110 Q66 110 66 104 L66 46 Q58 42 58 36 L58 28 Z" fill="rgba(224,242,254,0.4)" stroke="#7dd3fc" stroke-width="1.6" />
+                  <rect x="36" y="56" width="28" height="52" rx="2" fill="url(#mUnlabeledFill)" />
+                  <ellipse cx="50" cy="56" rx="14" ry="2.5" fill="#bae6fd" />
+                  <line x1="39" y1="46" x2="39" y2="104" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-opacity="0.6" />
+                  <!-- DİKKAT: Üzerinde hiçbir etiket, yazı veya işaret YOK! Tamamen şeffaf/etiketsiz -->
+                  <rect x="40" y="16" width="20" height="13" rx="2.5" fill="url(#mUnlabeledCap)" stroke="#93c5fd" stroke-width="0.9" />
+                  <line x1="45" y1="18" x2="45" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                  <line x1="50" y1="18" x2="50" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                  <line x1="55" y1="18" x2="55" y2="27" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="card-info">
+                <strong class="card-title">Etiketsiz Reaktif Şişesi</strong>
+                <span class="card-desc">Üzerinde etiket bulunmayan çözelti şişesi.</span>
+              </div>
+              <div class="card-action">
+                <span class="action-btn">Masaya Ekle +</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- MODAL AYAK BİLGİSİ -->
+          <footer class="modal-foot">
+            <div class="modal-foot-status">
+              <span class="modal-count-badge" id="modal-count-badge">0 / 3 Malzeme Seçildi</span>
+              <button type="button" class="btn-confirm-materials-modal" id="btn-confirm-materials-modal">
+                Seçimleri Onayla ve Kapat ✓
+              </button>
+            </div>
+            <p class="modal-foot-hint" id="modal-foot-hint">İpucu: Sadece etiketli ve protokolde belirtilen reaktifleri seçiniz.</p>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           2. DİNAMİK ETİKETLEME PENCERESİ (INPUT MODALI)
+           ======================================================== -->
+      <div class="label-modal-backdrop" id="label-modal-backdrop" aria-hidden="true">
+        <div class="label-modal" id="label-modal" role="dialog" aria-modal="true" aria-labelledby="modal-label-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon label-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" />
+                  <circle cx="7.5" cy="7.5" r="1.6" fill="currentColor" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-label-title">Beher Etiketini Oluştur</h2>
+                <p class="modal-sub">Hazırlanacak çözeltinin adını ve tanımını girerek etiketi özelleştirin.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-label-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="label-modal-body">
+            <!-- Görsel Etiket Canlı Önizlemesi -->
+            <div class="label-preview-plate">
+              <div class="preview-badge">ÇÖZELTİ</div>
+              <div class="preview-text" id="label-preview-text">Madde A Çözeltisi</div>
+              <div class="preview-sub">Saf Su · 150 mL</div>
+            </div>
+
+            <div class="label-form-group">
+              <label for="input-label-text" class="label-input-heading">Etiket Metni:</label>
+              <div class="label-input-wrap">
+                <input type="text" id="input-label-text" class="label-text-input" placeholder="Örn: Madde A Çözeltisi" value="Madde A Çözeltisi" maxlength="28" />
+                <button type="button" class="btn-clear-input" id="btn-clear-label-input" aria-label="Temizle">✕</button>
+              </div>
+            </div>
+
+            <!-- Hızlı Öneri Butonları -->
+            <div class="label-quick-tags">
+              <span class="quick-tags-label">Hızlı Seçenekler:</span>
+              <button type="button" class="quick-tag-btn" data-value="Madde A Çözeltisi">Madde A Çözeltisi</button>
+              <button type="button" class="quick-tag-btn" data-value="Madde A (0.1 M)">Madde A (0.1 M)</button>
+              <button type="button" class="quick-tag-btn" data-value="150 mL Madde A">150 mL Madde A</button>
+            </div>
+          </div>
+
+          <footer class="modal-foot">
+            <div class="label-modal-actions">
+              <button type="button" class="btn-modal-cancel" id="btn-cancel-label">Vazgeç</button>
+              <button type="button" class="btn-modal-confirm" id="btn-confirm-label">
+                <span>Etiketi Kaydet ve Onayla ✓</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           YENİ: ÇALIŞMA ALANINI KONTROL ET VE TEMİZLE MODAL SİSTEMİ
+           ======================================================== -->
+      <div class="workspace-modal-backdrop" id="workspace-modal-backdrop" aria-hidden="true">
+        <div class="workspace-modal" id="workspace-modal" role="dialog" aria-modal="true" aria-labelledby="modal-workspace-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon workspace-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 11l3 3L22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-workspace-title">Çalışma Alanı ve Tezgah Kontrolü</h2>
+                <p class="modal-sub">Masa üzerindeki ekipmanları denetleyin ve protokol dışı yabancı malzemeleri temizleyin.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-workspace-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <!-- Durum / İkaz Başlığı -->
+          <div class="workspace-status-banner" id="workspace-status-banner">
+            <div class="status-banner-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div class="status-banner-content">
+              <strong id="workspace-status-title">Tezgâhta Protokol Dışı Malzemeler Var!</strong>
+              <p id="workspace-status-desc">İş güvenliği ve steril çalışma kuralı: Deney malzemelerini yerleştirmeden önce masadaki atık ve yabancı nesneleri kaldırmalısınız.</p>
+            </div>
+          </div>
+
+          <!-- Masadaki Nesnelerin Listesi -->
+          <div class="workspace-items-container">
+            <span class="workspace-list-label">Tezgâh Üzerinde Tespit Edilen Öğeler:</span>
+            
+            <div class="workspace-items-grid">
+              <!-- 1. Öğe: Kullanılmış Deney Tüpü Standı -->
+              <div class="workspace-item-card is-foreign" id="ws-card-rack">
+                <div class="ws-card-visual ws-visual-orange">
+                  <svg viewBox="0 0 48 48" class="ws-svg-icon" aria-hidden="true">
+                    <rect x="8" y="38" width="32" height="4" rx="1.5" fill="#ea580c" />
+                    <rect x="6" y="22" width="36" height="3" rx="1" fill="#ea580c" />
+                    <rect x="12" y="10" width="6" height="28" rx="3" fill="#93c5fd" stroke="#3b82f6" stroke-width="1.2" />
+                    <path d="M13 26h4v9a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2z" fill="#f43f5e" />
+                    <rect x="21" y="8" width="6" height="30" rx="3" fill="#93c5fd" stroke="#3b82f6" stroke-width="1.2" />
+                    <path d="M22 28h4v8a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2z" fill="#eab308" />
+                    <rect x="30" y="12" width="6" height="26" rx="3" fill="#93c5fd" stroke="#3b82f6" stroke-width="1.2" />
+                    <path d="M31 29h4v7a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2z" fill="#10b981" />
+                  </svg>
+                </div>
+                <div class="ws-card-info">
+                  <div class="ws-card-title-row">
+                    <strong class="ws-card-title">Kullanılmış Deney Tüpü Standı</strong>
+                    <span class="ws-badge ws-badge-danger" id="badge-rack">Yabancı Malzeme / Atık</span>
+                  </div>
+                  <p class="ws-card-desc">Önceki analizden kalan kirli ve kimyasal atıklı deney tüpleri.</p>
+                </div>
+                <div class="ws-card-action">
+                  <button type="button" class="btn-clean-item" id="btn-clean-rack" aria-label="Kullanılmış Deney Tüpü Standını Masadan Kaldır">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    <span>Masadan Kaldır</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Öğe: Kirli Petri Kabı -->
+              <div class="workspace-item-card is-foreign" id="ws-card-petri">
+                <div class="ws-card-visual ws-visual-red">
+                  <svg viewBox="0 0 48 48" class="ws-svg-icon" aria-hidden="true">
+                    <ellipse cx="24" cy="28" rx="18" ry="9" fill="#bae6fd" stroke="#38bdf8" stroke-width="1.5" />
+                    <ellipse cx="24" cy="28" rx="14" ry="6" fill="#fde047" fill-opacity="0.8" />
+                    <circle cx="21" cy="27" r="2" fill="#15803d" />
+                    <circle cx="27" cy="29" r="1.8" fill="#b91c1c" />
+                    <ellipse cx="26" cy="21" rx="17" ry="8" fill="rgba(255,255,255,0.4)" stroke="#e0f2fe" stroke-width="1.2" transform="rotate(-10 26 21)" />
+                  </svg>
+                </div>
+                <div class="ws-card-info">
+                  <div class="ws-card-title-row">
+                    <strong class="ws-card-title">Kirli Petri Kabı</strong>
+                    <span class="ws-badge ws-badge-danger" id="badge-petri">Yabancı Malzeme / Kontamine</span>
+                  </div>
+                  <p class="ws-card-desc">Kapağı açık kalmış, kontamine olmuş eski kültür kabı.</p>
+                </div>
+                <div class="ws-card-action">
+                  <button type="button" class="btn-clean-item" id="btn-clean-petri" aria-label="Kirli Petri Kabını Masadan Kaldır">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    <span>Masadan Kaldır</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. Öğe: Paslanmaz Çelik Çalışma Tepsisi -->
+              <div class="workspace-item-card is-valid" id="ws-card-tray">
+                <div class="ws-card-visual ws-visual-green">
+                  <svg viewBox="0 0 48 48" class="ws-svg-icon" aria-hidden="true">
+                    <rect x="6" y="24" width="36" height="12" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5" />
+                    <rect x="8" y="26" width="32" height="8" rx="2" fill="#94a3b8" />
+                    <line x1="12" y1="30" x2="36" y2="30" stroke="#f8fafc" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <div class="ws-card-info">
+                  <div class="ws-card-title-row">
+                    <strong class="ws-card-title">Paslanmaz Çelik Çalışma Tepsisi</strong>
+                    <span class="ws-badge ws-badge-success">Standart Ekipman / Temiz</span>
+                  </div>
+                  <p class="ws-card-desc">Çözelti hazırlama protokolü için gerekli temiz metal tepsi ve cam baget.</p>
+                </div>
+                <div class="ws-card-action">
+                  <span class="ws-kept-badge">✓ Masada Kalmalı</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="modal-foot">
+            <div class="workspace-modal-actions">
+              <button type="button" class="btn-clean-all" id="btn-clean-all-workspace">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Tüm Yabancı Malzemeleri Temizle</span>
+              </button>
+              <button type="button" class="btn-modal-confirm" id="btn-confirm-workspace">
+                <span>Kontrolü Tamamla ve Kapat ✓</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           YENİ: MERKEZİ GEÇİŞ UYARI PENCERESİ (ÇÖZELTİ MASASINA YÖNLENDİRME)
+           ======================================================== -->
+      <div class="stage-transition-overlay" id="stage-transition-overlay" aria-hidden="true">
+        <div class="stage-transition-card" role="alertdialog" aria-modal="true" aria-labelledby="trans-title">
+          <div class="trans-glow-aura" aria-hidden="true"></div>
+          
+          <div class="trans-icon-box" aria-hidden="true">
+            <div class="trans-icon-pulse"></div>
+            <svg viewBox="0 0 24 24" class="trans-icon-svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3" />
+              <path d="M7.4 15h9.2" stroke-dasharray="2 2" />
+              <circle cx="10.5" cy="17.5" r="1" fill="currentColor" />
+              <circle cx="13.5" cy="18" r="0.8" fill="currentColor" />
+            </svg>
+          </div>
+
+          <h2 class="trans-title" id="trans-title">Çözelti Masasına Yönlendiriliyorsunuz...</h2>
+          <p class="trans-sub">Kontrol listesi doğrulandı. Çözelti hazırlama ve reaktif aktarım masası hazırlanıyor.</p>
+
+          <div class="trans-progress-wrap">
+            <div class="trans-progress-bar">
+              <div class="trans-progress-fill" id="trans-progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="trans-checklist-tags">
+            <span class="trans-tag">✓ Çalışma Alanı Temiz</span>
+            <span class="trans-tag">✓ Malzemeler Hazır</span>
+            <span class="trans-tag">✓ Kap Etiketlendi</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           3. GÖREV PLANINI GÖR PENCERESİ (PLAN DETAYLARI MODALI)
+           ======================================================== -->
+      <div class="task-plan-modal-backdrop" id="task-plan-modal-backdrop" aria-hidden="true">
+        <div class="task-plan-modal" id="task-plan-modal" role="dialog" aria-modal="true" aria-labelledby="modal-plan-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon plan-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-plan-title">Onaylanan Görev ve Güvenlik Planı</h2>
+                <p class="modal-sub">Vardiya planlama aşamasında belirlediğiniz görev sırası ve kişisel koruyucu donanımlar.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-plan-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="task-plan-modal-body">
+            <div class="plan-modal-grid">
+              <!-- Sol Sütun: Görev Sırası -->
+              <div class="plan-section-card">
+                <div class="plan-section-header">
+                  <span class="plan-section-icon" aria-hidden="true">📋</span>
+                  <div class="plan-section-titles">
+                    <h3 class="plan-section-title">Görev Sırası</h3>
+                    <span class="plan-section-badge">4 Adım</span>
+                  </div>
+                </div>
+                <div class="plan-tasks-list" id="plan-modal-tasks-list">
+                  <!-- JS dinamik dolduracak -->
+                </div>
+              </div>
+
+              <!-- Sağ Sütun: Koruyucu Donanımlar -->
+              <div class="plan-section-card">
+                <div class="plan-section-header">
+                  <span class="plan-section-icon" aria-hidden="true">🦺</span>
+                  <div class="plan-section-titles">
+                    <h3 class="plan-section-title">Koruyucu Donanım Bilgileri (KKD)</h3>
+                    <span class="plan-section-badge" id="plan-modal-gears-badge">Seçilen Ekipmanlar</span>
+                  </div>
+                </div>
+                <div class="plan-gears-list" id="plan-modal-gears-list">
+                  <!-- JS dinamik dolduracak -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <footer class="modal-foot">
+            <div class="plan-modal-actions">
+              <button type="button" class="btn-modal-confirm" id="btn-dismiss-plan-modal">
+                <span>Anladım, Kapat ✓</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           6. ÇÖZELTİ HAZIRLAMA TAMAMLANDI VE SONRAKİ SAHNEYE GEÇİŞ MODALI
+           ======================================================== -->
+      <div class="solution-complete-modal-backdrop" id="solution-complete-modal-backdrop" aria-hidden="true">
+        <div class="solution-complete-modal" id="solution-complete-modal" role="dialog" aria-modal="true" aria-labelledby="modal-complete-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon complete-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-complete-title">Çözelti Hazırlama Başarılı</h2>
+                <p class="modal-sub">Kimyasal protokol kurallarına uygun olarak tamamlandı.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-complete-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="complete-modal-body">
+            <div class="complete-banner">
+              <div class="complete-badge-check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m5 13 4 4L19 7" />
+                </svg>
+              </div>
+              <div class="complete-banner-text">
+                <strong class="complete-banner-title">Çözelti hazırlandı. Kabın etiketi tamamlandı.</strong>
+                <p class="complete-banner-desc">Madde A ve saf su homojen karıştırıldı. Beher üzerine etiket başarıyla yapıştırıldı.</p>
+              </div>
+            </div>
+
+            <div class="complete-summary-card">
+              <div class="complete-info-row">
+                <span class="complete-info-label">Hazırlanan Çözelti:</span>
+                <span class="complete-info-value" id="complete-label-val">Madde A Çözeltisi</span>
+              </div>
+              <div class="complete-info-row">
+                <span class="complete-info-label">Çözelti Durumu:</span>
+                <span class="complete-info-value complete-status-tag">Homojen Karışım · Hazır</span>
+              </div>
+              <div class="complete-info-row">
+                <span class="complete-info-label">Sıradaki Protokol:</span>
+                <span class="complete-info-value">2. Numuneyi İncele</span>
+              </div>
+            </div>
+          </div>
+
+          <footer class="modal-foot">
+            <div class="complete-modal-actions">
+              <button type="button" class="btn-modal-cancel" id="btn-review-desk">
+                <span>Masada Kal</span>
+              </button>
+              <button type="button" class="btn-modal-confirm btn-next-stage" id="btn-proceed-next-stage">
+                <span>Tamam</span>
+              </button>
+            </div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           YENİ: SAHNE 4 NUMUNE KABI SEÇİM MODAL SİSTEMİ (TEMİZ / SU LEKELİ)
+           ======================================================== -->
+      <div class="bottle-select-modal-backdrop" id="bottle-select-modal-backdrop" aria-hidden="true">
+        <div class="bottle-select-modal" id="bottle-select-modal" role="dialog" aria-modal="true" aria-labelledby="modal-bottle-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon bottle-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="7" y="2" width="10" height="4" rx="1.5" fill="currentColor" fill-opacity="0.25" />
+                  <path d="M8 6v2l-2 3v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-9l-2-3V6" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                  <line x1="10" y1="18" x2="14" y2="18" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-bottle-title">Numune Kabını Seç</h2>
+                <p class="modal-sub">İnceleme protokolü için uygun olan steril numune kabını seçin.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-bottle-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="bottle-modal-body">
+            <div class="bottle-cards-grid">
+              <!-- 1. TEMİZ NUMUNE KABI (PIRIL PIRIL) -->
+              <button type="button" class="bottle-select-card" id="bcard-clean" aria-label="Temiz Numune Kabını Seç">
+                <div class="bottle-card-badge badge-clean">✓ Temiz & Steril</div>
+                <div class="bottle-card-svg-wrap">
+                  <svg viewBox="0 0 100 130" class="bottle-card-svg" aria-hidden="true">
+                    <!-- Taban Gölgesi -->
+                    <ellipse cx="50" cy="120" rx="26" ry="5" fill="rgba(0,0,0,0.3)" />
+                    <!-- Cam Gövde -->
+                    <path d="M 40 28 L 40 36 Q 40 42 32 46 L 32 108 Q 32 118 42 118 L 58 118 Q 68 118 68 108 L 68 46 Q 60 42 60 36 L 60 28 Z"
+                          fill="rgba(224,242,254,0.35)" stroke="#93c5fd" stroke-width="1.8" />
+                    <!-- Cam Parlama Vurguları -->
+                    <path d="M 36 48 L 36 106" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-opacity="0.8" />
+                    <path d="M 64 52 L 64 102" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.4" />
+                    <!-- Kristal Parlama Yıldızları -->
+                    <path d="M 38 60 Q 43 60 43 55 Q 43 60 48 60 Q 43 60 43 65 Q 43 60 38 60 Z" fill="#ffffff" opacity="0.9" />
+                    <path d="M 60 90 Q 63 90 63 87 Q 63 90 66 90 Q 63 90 63 93 Q 63 90 60 90 Z" fill="#ffffff" opacity="0.8" />
+                    <!-- Beyaz Kapak -->
+                    <rect x="36" y="14" width="28" height="15" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" />
+                    <path d="M 40 17 V 27 M 44 17 V 27 M 48 17 V 27 M 52 17 V 27 M 56 17 V 27 M 60 17 V 27" stroke="#94a3b8" stroke-width="1" stroke-opacity="0.5" />
+                    <rect x="36" y="14" width="28" height="3" rx="1.5" fill="#ffffff" />
+                  </svg>
+                </div>
+                <div class="bottle-card-info">
+                  <strong class="bottle-card-title">Temiz Numune Kabı</strong>
+                  <span class="bottle-card-desc">Pırıl pırıl, yıkanmış ve kurulanmış steril cam numune kabı. İnceleme için hazır.</span>
+                </div>
+                <div class="bottle-card-action">
+                  <span class="bottle-action-btn">Bu Kabı Seç →</span>
+                </div>
+              </button>
+
+              <!-- 2. SU LEKELİ NUMUNE KABI (BELİRGİN SU LEKELERİ) -->
+              <button type="button" class="bottle-select-card card-water-stained" id="bcard-dirty" aria-label="Su Lekeli Numune Kabını Seç">
+                <div class="bottle-card-badge badge-stained">⚠ Su Lekeli / Kullanılmış</div>
+                <div class="bottle-card-svg-wrap">
+                  <svg viewBox="0 0 100 130" class="bottle-card-svg" aria-hidden="true">
+                    <!-- Taban Gölgesi -->
+                    <ellipse cx="50" cy="120" rx="26" ry="5" fill="rgba(0,0,0,0.3)" />
+                    <!-- Cam Gövde -->
+                    <path d="M 40 28 L 40 36 Q 40 42 32 46 L 32 108 Q 32 118 42 118 L 58 118 Q 68 118 68 108 L 68 46 Q 60 42 60 36 L 60 28 Z"
+                          fill="rgba(224,242,254,0.32)" stroke="#94a3b8" stroke-width="1.8" />
+                    <!-- Mat Cam Vurgusu -->
+                    <path d="M 36 48 L 36 106" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-opacity="0.35" />
+
+                    <!-- BELİRGİN SU LEKELERİ (Kurumuş kireç/su halkaları ve su damlası lekeleri) -->
+                    <g class="water-stains-group">
+                      <!-- Su lekesi halkaları (mineral/kireç halkası) -->
+                      <ellipse cx="44" cy="62" rx="6" ry="9" fill="rgba(241,245,249,0.2)" stroke="rgba(255,255,255,0.7)" stroke-width="1.3" transform="rotate(-12 44 62)" />
+                      <ellipse cx="58" cy="82" rx="7" ry="11" fill="rgba(241,245,249,0.22)" stroke="rgba(255,255,255,0.75)" stroke-width="1.4" transform="rotate(15 58 82)" />
+                      <circle cx="48" cy="98" r="5" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.65)" stroke-width="1.2" />
+                      <circle cx="56" cy="52" r="4" fill="rgba(241,245,249,0.2)" stroke="rgba(255,255,255,0.6)" stroke-width="1.1" />
+                      <circle cx="39" cy="80" r="3.5" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.6)" stroke-width="1" />
+                      <circle cx="62" cy="104" r="3.2" fill="rgba(241,245,249,0.18)" stroke="rgba(255,255,255,0.6)" stroke-width="1" />
+                      <!-- Kurumuş su akıntısı / dalgalı su lekesi çizgisi -->
+                      <path d="M 34 72 Q 42 70 50 74 Q 60 71 66 73" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="4,2" />
+                      <path d="M 35 92 Q 44 94 54 91 Q 62 93 65 91" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3,2" />
+                      <path d="M 52 56 Q 51 68 53 78" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="5,3" />
+                      <!-- Dipte kurumuş su buharlaşma lekesi -->
+                      <path d="M 34 106 Q 44 103 54 107 Q 62 104 66 106 L 66 112 Q 66 118 58 118 L 42 118 Q 34 118 34 112 Z"
+                            fill="rgba(241,245,249,0.28)" stroke="rgba(255,255,255,0.7)" stroke-width="1.1" />
+                    </g>
+
+                    <!-- Beyaz Kapak -->
+                    <rect x="36" y="14" width="28" height="15" rx="3" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.2" />
+                    <path d="M 40 17 V 27 M 44 17 V 27 M 48 17 V 27 M 52 17 V 27 M 56 17 V 27 M 60 17 V 27" stroke="#94a3b8" stroke-width="1" stroke-opacity="0.45" />
+                    <rect x="36" y="14" width="28" height="3" rx="1.5" fill="#ffffff" fill-opacity="0.8" />
+                  </svg>
+                </div>
+                <div class="bottle-card-info">
+                  <strong class="bottle-card-title">Su Lekeli Numune Kabı</strong>
+                  <span class="bottle-card-desc">Cam yüzeyinde kurumuş su damlaları ve kireç lekeleri kalmış kullanılmış kap.</span>
+                </div>
+                <div class="bottle-card-action">
+                  <span class="bottle-action-btn">Bu Kabı Seç →</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <footer class="modal-foot">
+            <span class="bottle-foot-hint">İpucu: Hassas analizlerde kap yüzeyindeki mineral ve su kalıntıları homojenliği ve optik okumayı olumsuz etkileyebilir.</span>
+          </footer>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           7. SAHNE 4: ANALİZ ALANI SEÇİMİ MODAL SİSTEMİ (HOTSPOT)
+           ======================================================== -->
+      <div class="area-select-modal-backdrop" id="area-select-modal-backdrop" aria-hidden="true">
+        <div class="area-select-modal" id="area-select-modal" role="dialog" aria-modal="true" aria-labelledby="modal-area-title">
+          <header class="modal-head">
+            <div class="modal-title-wrap">
+              <span class="modal-icon area-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="4" rx="1" fill="currentColor" fill-opacity="0.25" />
+                  <line x1="5" y1="11" x2="5" y2="21" />
+                  <line x1="19" y1="11" x2="19" y2="21" />
+                  <line x1="5" y1="16" x2="19" y2="16" stroke-dasharray="2 2" />
+                  <path d="M8 4h3v3H8z" />
+                  <path d="M14 5l2-1v3h-2z" />
+                </svg>
+              </span>
+              <div>
+                <h2 class="modal-title" id="modal-area-title">Analiz Alanını Seç</h2>
+                <p class="modal-sub">Görsel üzerindeki çalışma alanlarından analiz için uygun olan bölgeye tıklayın.</p>
+              </div>
+            </div>
+            <button type="button" class="modal-close-btn" id="btn-close-area-modal" aria-label="Pencereyi Kapat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="area-modal-body">
+            <div class="area-image-container" id="area-image-container">
+              <img src="img/alansecimi.jpg" alt="Laboratuvar Çalışma Alanları: Analiz Alanı ve Dağınık Çalışma Alanı" class="area-selection-img" id="area-selection-img" draggable="false" />
+
+              <!-- Hotspot 1: Analiz Alanı (Sol Taraf - Doğru) -->
+              <button type="button" class="area-hotspot hotspot-clean" id="hotspot-clean-area" aria-label="Analiz Alanı Seç (Temiz ve Düzenli)">
+                <span class="hotspot-highlight"></span>
+                <span class="hotspot-badge">
+                  <span class="hotspot-badge-icon">✓</span>
+                  <span class="hotspot-badge-text">Analiz Alanı</span>
+                  <span class="hotspot-subtext">(Temiz & Düzenli)</span>
+                </span>
+              </button>
+
+              <!-- Hotspot 2: Dağınık Alan (Sağ Taraf - Yanlış) -->
+              <button type="button" class="area-hotspot hotspot-messy" id="hotspot-messy-area" aria-label="Dağınık Alan Seç (Uygun Değil)">
+                <span class="hotspot-highlight"></span>
+                <span class="hotspot-badge">
+                  <span class="hotspot-badge-icon">✕</span>
+                  <span class="hotspot-badge-text">Çalışma Alanı (Dağınık)</span>
+                  <span class="hotspot-subtext">(Uygun Değil)</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <footer class="modal-foot area-modal-foot">
+            <div class="area-foot-hint-wrap">
+              <span class="area-foot-hint">İpucu: Analiz ve numune hazırlama adımları yalnızca temiz ve düzenli laboratuvar alanında yürütülmelidir.</span>
+            </div>
+          </footer>
+        </div>
+      </div>
+      </section>
+
+      <!-- ========================================================
+           ÖĞRETMEN AVATARI (kadın_head.png)
+           - Varsayılan (default) durumda sahnede kesinlikle gizlidir.
+           - "Vardiyaya Başla" butonuna basılıp tezgah ekranda tamamen
+             görünür hale geldiği anda sol alt köşeden slide-up + fade-in ile belirir.
+           - Konum: bottom: 0, left: 0 (ekranın sol alt sınırına sıfırlanmış).
+           - Katman (Z-Index): Tezgah ve arka plan nesnelerinin üstünde (en önde).
+           - Boyut: Ekran yüksekliğinin %15-20'si kadar dengeli ölçeklenir.
+           ======================================================== -->
+      <div class="teacher-avatar-container" id="teacher-avatar-container" aria-label="Gözlemci Öğretmen" aria-hidden="true">
+        <img src="img/kadin_head.png" alt="Laboratuvar Güvenlik Sorumlusu Öğretmen Avatarı" class="teacher-avatar-img" id="teacher-avatar-img" draggable="false" />
+
+        <!-- ÖĞRETMEN AVATARI KONUŞMA BALONCUĞU (SPEECH BUBBLE) - GÖREV VE PROTOKOLLER İÇİN -->
+        <div class="speech-bubble-container calm-speech-bubble comic-cloud-container avatar-speech-bubble" id="avatar-speech-bubble" aria-live="polite">
+          <svg class="cloud-svg-bg speech-svg-bg" viewBox="0 0 520 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <filter id="avatarThoughtBubbleShadow" x="-10%" y="-10%" width="124%" height="128%">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35" />
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#38bdf8" flood-opacity="0.25" />
+              </filter>
+              <linearGradient id="avatarThoughtBubbleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="90%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#f8fafc" />
+              </linearGradient>
+            </defs>
+
+            <!-- Ana Bulut Gövdesi -->
+            <path class="thought-cloud-path"
+              d="M 150 28
+                 A 44 38 0 0 1 230 15
+                 A 52 42 0 0 1 320 15
+                 A 48 40 0 0 1 405 22
+                 A 44 38 0 0 1 472 48
+                 A 40 40 0 0 1 506 95
+                 A 42 42 0 0 1 482 142
+                 A 46 40 0 0 1 415 162
+                 A 50 42 0 0 1 325 164
+                 A 48 40 0 0 1 235 162
+                 A 44 40 0 0 1 160 152
+                 A 42 42 0 0 1 106 128
+                 A 40 40 0 0 1 88 82
+                 A 42 42 0 0 1 114 42
+                 A 40 38 0 0 1 150 28
+                 Z"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <!-- Düşünce İzi: Ana Balondan Karakterin Kafasına Doğru İnen 3 Kademeli Bağlantı Dairesi -->
+            <circle cx="102" cy="174" r="14"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3.5"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <circle cx="72" cy="196" r="9.5"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="3"
+              filter="url(#avatarThoughtBubbleShadow)" />
+
+            <circle cx="46" cy="216" r="6"
+              fill="url(#avatarThoughtBubbleGrad)"
+              stroke="#0f172a"
+              stroke-width="2.5"
+              filter="url(#avatarThoughtBubbleShadow)" />
+          </svg>
+
+          <!-- Balon İçi Daktilo Metni -->
+          <div class="cloud-content speech-content avatar-speech-content">
+            <div class="speech-text-wrap avatar-speech-text-wrap">
+              <span class="speech-text avatar-speech-text" id="avatar-speech-text"></span><span class="typewriter-cursor" id="avatar-typewriter-cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================
+         BAŞLANGIÇ ETKİLEŞİM PANELİ (VARDİYAYA BAŞLA)
+         Mobil ve masaüstü tarayıcılarda sesin (autoplay engeli olmadan)
+         sorunsuz çalmasını sağlamak için kullanıcıdan ilk dokunmayı alır.
+         Tıklandığında yavaş slide-up animasyonu başlar, bitince ses çalar.
+         ======================================================== -->
+    <div class="start-interaction-overlay" id="start-overlay">
+      <div class="start-card">
+        <button id="btn-start-shift" class="btn-start-shift" aria-label="Laboratuvara Giriş">
+          <span class="btn-glow-effect"></span>
+          <span class="btn-text-wrap">
+            <span class="btn-main-label">Laboratuvara Giriş</span>
+            <span class="btn-sub-label">Simülasyonu ve Sesli Brifingi Başlat</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================
+       SES DOSYASI ENTEGRASYONU
+       Sound klasöründeki MP3 ses dosyasını yükler.
+       Hem sound/giris_ses.mp3 hem de alternatif isimleri destekler.
+       ======================================================== -->
+  <audio id="shift-audio" preload="auto">
+    <source src="sound/giris_ses.mp3" type="audio/mpeg">
+    <source src="Sound/giris_ses.mp3" type="audio/mpeg">
+    <source src="sound/ses.mp3" type="audio/mpeg">
+    <source src="Sound/ses.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Görevler ve Protokoller Ses Çalıcısı (cozeltiolusturma, numuneyiincele, yuzeyitemizleme, atıklarıayır) -->
+  <audio id="task-audio" preload="auto"></audio>
+
+  <!-- Ana JavaScript Uygulama Dosyası -->
+  <script src="script.js"></script>
+</body>
+
+</html>

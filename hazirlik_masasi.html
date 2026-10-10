@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hazırlık Masası ve Kontrol Listesi | Vardiyayı Güvenle Tamamla</title>
+  <meta name="description" content="Risk Laboratuvarı – Vardiyayı Güvenle Tamamla: malzemelerin hazırlık masasına yerleştirildiği, kabın etiketlenip çözeltinin hazırlandığı etkileşimli laboratuvar hazırlık sahnesi." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================
+       1. TASARIM DEĞİŞKENLERİ
+       ========================================================= */
+    :root {
+      --navy-950: #050b16;
+      --navy-900: #0a1628;
+      --navy-800: #10223d;
+      --line: rgba(56, 189, 248, 0.28);
+      --blue: #38bdf8;
+      --blue-strong: #2563eb;
+      --green: #22c55e;
+      --green-strong: #16a34a;
+      --orange: #f59e0b;
+      --text: #e6eef8;
+      --muted: #93a8c4;
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { width: 100%; height: 100%; }
+
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: transparent; /* iframe içinde ana sahnenin arka planı görünsün */
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Dosya tek başına açıldığında laboratuvar temalı arka plan */
+    body.is-standalone {
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(30, 64, 120, 0.55) 0%, transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(8, 60, 90, 0.5) 0%, transparent 50%),
+        var(--navy-950);
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap;
+    }
+
+    /* =========================================================
+       2. SAHNE (BAŞLANGIÇTA display: none → FADE-IN)
+       ========================================================= */
+    .prep-scene {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: clamp(4px, 1vmin, 10px);
+      opacity: 0;
+      transform: translateY(16px) scale(0.985);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+
+    body.is-standalone .prep-scene {
+      inset: clamp(10px, 3vmin, 28px);
+      max-width: 1320px;
+      max-height: 760px;
+      margin: auto;
+    }
+
+    .prep-scene.is-shown { display: block; }
+    .prep-scene.is-visible { opacity: 1; transform: none; }
+
+    .prep-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(240px, 1fr);
+      gap: clamp(10px, 1.6vw, 20px);
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================================================
+       3. ORTAK PANEL STİLİ
+       ========================================================= */
+    .panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: clamp(14px, 1.6vw, 22px);
+      background: linear-gradient(165deg, rgba(14, 32, 60, 0.94) 0%, rgba(7, 16, 32, 0.96) 100%);
+      border: 1px solid var(--line);
+      box-shadow:
+        0 30px 60px -24px rgba(0, 0, 0, 0.75),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 2px;
+      z-index: 4;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.85), transparent);
+      opacity: 0.75;
+    }
+
+    .is-visible .panel-desk { animation: panelInLeft 0.9s var(--ease-out) both; }
+    .is-visible .panel-check { animation: panelInRight 0.9s 0.12s var(--ease-out) both; }
+
+    @keyframes panelInLeft { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: none; } }
+    @keyframes panelInRight { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: none; } }
+
+    .panel-head {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: clamp(10px, 2.2vh, 22px) clamp(14px, 1.8vw, 24px) clamp(6px, 1.2vh, 12px);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(0.92rem, 1.55vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #f1f7ff;
+      line-height: 1.1;
+    }
+
+    .title-mark {
+      flex-shrink: 0;
+      width: clamp(26px, 2.6vw, 34px);
+      height: clamp(26px, 2.6vw, 34px);
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(14, 165, 233, 0.06));
+      border: 1px solid rgba(56, 189, 248, 0.45);
+    }
+
+    .title-mark svg { width: 62%; height: 62%; }
+
+    .panel-sub {
+      margin-top: clamp(3px, 0.6vh, 6px);
+      font-size: clamp(0.68rem, 1vw, 0.88rem);
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    /* "3 MALZEME SEÇİLDİ" — içi boş mavi kenarlıklı rozet */
+    .badge-outline {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: clamp(5px, 0.8vh, 8px) clamp(10px, 1.1vw, 14px);
+      border: 1.5px solid var(--blue);
+      border-radius: 999px;
+      background: transparent;
+      color: #bae6fd;
+      font-size: clamp(0.58rem, 0.85vw, 0.76rem);
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      box-shadow: inset 0 0 18px -6px rgba(56, 189, 248, 0.8), 0 0 14px -6px rgba(56, 189, 248, 0.6);
+    }
+
+    .badge-outline .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 10px var(--blue);
+      animation: dotPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes dotPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.75); } }
+
+    /* "4 ADIM" — dairesel rozet (ilerleme halkalı) */
+    .badge-circle {
+      position: relative;
+      flex-shrink: 0;
+      width: clamp(46px, 4.6vw, 60px);
+      height: clamp(46px, 4.6vw, 60px);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      background: radial-gradient(circle at 30% 25%, rgba(56, 189, 248, 0.28), rgba(8, 20, 40, 0.92) 70%);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.08), 0 8px 20px -8px rgba(56, 189, 248, 0.6);
+    }
+
+    .badge-circle .ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring-track { fill: none; stroke: rgba(56, 189, 248, 0.25); stroke-width: 3; }
+    .ring-fill {
+      fill: none; stroke: var(--green); stroke-width: 3.4; stroke-linecap: round;
+      stroke-dasharray: 100; stroke-dashoffset: 50;
+      transition: stroke-dashoffset 0.8s var(--ease-out);
+      filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.8));
+    }
+    .badge-circle strong { position: relative; font-size: clamp(1rem, 1.7vw, 1.4rem); font-weight: 800; color: #fff; }
+    .badge-circle span { position: relative; margin-top: 2px; font-size: clamp(0.44rem, 0.65vw, 0.58rem); font-weight: 800; letter-spacing: 0.14em; color: #7dd3fc; }
+
+    /* =========================================================
+       4. SOL PANEL: HAZIRLIK MASASI
+       ========================================================= */
+    .desk-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.55;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.85) 40%, rgba(0, 0, 0, 0.15) 75%, transparent 100%);
+      mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.85) 40%, rgba(0, 0, 0, 0.15) 75%, transparent 100%);
+    }
+
+    .panel-desk::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 100%, rgba(56, 189, 248, 0.12), transparent 70%),
+        linear-gradient(180deg, rgba(5, 12, 26, 0.35) 0%, rgba(5, 12, 26, 0) 30%);
+    }
+
+    .desk-stage {
+      position: relative;
+      z-index: 2;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .desk-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .desk-svg text { font-family: var(--font); }
+
+    /* Masa üzeri nesnelerin giriş animasyonu (dış sarmalayıcıya uygulanır) */
+    .desk-item {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      transition: filter 0.45s ease;
+    }
+
+    .is-visible .desk-item {
+      animation: itemDrop 0.85s var(--ease-spring) calc(0.45s + var(--d, 0s)) both;
+    }
+
+    @keyframes itemDrop {
+      0% { opacity: 0; transform: translateY(-40px) scale(0.92); }
+      60% { opacity: 1; transform: translateY(4px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .desk-item.is-glow {
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 16px rgba(56, 189, 248, 0.5));
+    }
+
+    .desk-item.is-glow-green {
+      filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.95)) drop-shadow(0 0 18px rgba(34, 197, 94, 0.55));
+    }
+
+    /* Animasyonlu SVG parçalarının sabit dönüş merkezleri (kullanıcı birimi) */
+    #bottleWater { transform-box: view-box; transform-origin: 340px 250px; }
+    #jarA        { transform-box: view-box; transform-origin: 190px 262px; }
+    #stirRod     { transform-box: view-box; transform-origin: 450px 372px; }
+
+    #beakerLabel {
+      opacity: 0;
+      transform-box: view-box;
+      transform-origin: 612px 290px;
+      transform: translate(46px, -150px) rotate(-22deg) scale(1.2);
+    }
+
+    #beakerFill { transform: translate(0px, 98px); }
+    #solutionTint { opacity: 0; }
+    #beakerSediment { opacity: 0; }
+    #volTag { opacity: 0; transition: opacity 0.4s ease; }
+    #volTag.is-on { opacity: 1; }
+
+    .pour-stream {
+      fill: none;
+      stroke: #7dd3fc;
+      stroke-opacity: 0.85;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 1 1;
+      stroke-dashoffset: 1;
+    }
+
+    .pour-stream-flow {
+      fill: none;
+      stroke: #f0f9ff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 0.03 0.06;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      animation: streamFlow 0.5s linear infinite;
+    }
+
+    .pour-stream-flow.is-flowing { opacity: 0.75; }
+
+    @keyframes streamFlow { to { stroke-dashoffset: -0.18; } }
+
+    .bubble { opacity: 0; }
+    #beakerFill.is-stirring .bubble { animation: bubbleUp 1.2s ease-in var(--bd, 0s) infinite; }
+
+    @keyframes bubbleUp {
+      0% { opacity: 0; transform: translateY(0); }
+      25% { opacity: 0.85; }
+      100% { opacity: 0; transform: translateY(-78px); }
+    }
+
+    #scanBeam { opacity: 0; }
+    #scanBeam.is-scanning { animation: scanSweep 1.5s ease-in-out; }
+
+    @keyframes scanSweep {
+      0% { opacity: 0; transform: translateX(0); }
+      15%, 85% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(900px); }
+    }
+
+    /* Bildirim (toast) */
+    .desk-toast {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      top: clamp(2px, 0.8vh, 8px);
+      transform: translate(-50%, -8px);
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: min(90%, 540px);
+      padding: 8px 16px 8px 9px;
+      border-radius: 12px;
+      background: rgba(8, 20, 40, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      color: #e0f2fe;
+      font-size: clamp(0.66rem, 0.95vw, 0.84rem);
+      font-weight: 600;
+      line-height: 1.3;
+      box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      transition: opacity 0.35s ease, transform 0.35s var(--ease-out);
+    }
+
+    .desk-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+    .toast-icon {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fff;
+      background: var(--blue-strong);
+    }
+
+    .desk-toast[data-type="success"] { border-color: rgba(34, 197, 94, 0.65); }
+    .desk-toast[data-type="success"] .toast-icon { background: var(--green-strong); }
+    .desk-toast[data-type="warn"] { border-color: rgba(245, 158, 11, 0.75); }
+    .desk-toast[data-type="warn"] .toast-icon { background: #d97706; }
+
+    /* =========================================================
+       5. SAĞ PANEL: KONTROL LİSTESİ
+       ========================================================= */
+    .check-list {
+      list-style: none;
+      position: relative;
+      z-index: 2;
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 1.2vh, 12px);
+      padding: clamp(4px, 0.8vh, 8px) clamp(12px, 1.4vw, 20px) 0;
+    }
+
+    .check-list li { flex: 1 1 0; min-height: 0; max-height: 96px; display: flex; }
+
+    .is-visible .check-list li { animation: cardIn 0.6s var(--ease-out) calc(0.35s + var(--i) * 0.09s) both; }
+
+    @keyframes cardIn { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+
+    .step-card {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 1vw, 14px);
+      padding: clamp(5px, 1.1vh, 12px) clamp(9px, 1vw, 14px);
+      border-radius: clamp(12px, 1.2vw, 16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      background: linear-gradient(180deg, #ffffff 0%, #eef3f9 100%);
+      color: #0f1f38;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 10px 22px -14px rgba(0, 0, 0, 0.65);
+      transition: transform 0.28s var(--ease-spring), box-shadow 0.28s ease, border-color 0.45s ease, color 0.45s ease;
+    }
+
+    /* Yeşil "tamamlandı" katmanı: renk geçişi yumuşak olsun diye opaklıkla açılır */
+    .step-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      opacity: 0;
+      transition: opacity 0.55s ease;
+    }
+
+    .step-card::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: -60%;
+      width: 50%;
+      z-index: 0;
+      background: linear-gradient(100deg, transparent, rgba(56, 189, 248, 0.22), transparent);
+      opacity: 0;
+    }
+
+    .step-card:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 16px 30px -14px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(125, 211, 252, 0.35);
+    }
+
+    .step-card:active { transform: scale(0.98); }
+    .step-card:focus-visible { outline: 3px solid #7dd3fc; outline-offset: 2px; }
+
+    .step-card.is-done {
+      color: #fff;
+      border-color: rgba(187, 247, 208, 0.5);
+      box-shadow: 0 10px 22px -12px rgba(22, 163, 74, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .step-card.is-done::before { opacity: 1; }
+
+    .step-card.is-done:hover {
+      box-shadow: 0 16px 30px -12px rgba(22, 163, 74, 0.95), 0 0 0 1px rgba(187, 247, 208, 0.6);
+    }
+
+    .step-card.is-active { animation: activePulse 1.9s ease-in-out infinite; }
+
+    @keyframes activePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6), 0 10px 22px -14px rgba(0, 0, 0, 0.65); }
+      50% { box-shadow: 0 0 0 7px rgba(56, 189, 248, 0), 0 10px 22px -14px rgba(0, 0, 0, 0.65); }
+    }
+
+    .step-card.is-locked { cursor: not-allowed; }
+    .step-card.is-working { cursor: progress; }
+    .step-card.is-working::after { opacity: 1; animation: workingShimmer 1.2s linear infinite; }
+
+    @keyframes workingShimmer { from { left: -60%; } to { left: 110%; } }
+
+    .step-card.is-shake { animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(3px); }
+      30%, 50%, 70% { transform: translateX(-6px); }
+      40%, 60% { transform: translateX(6px); }
+    }
+
+    .step-card.is-pop { animation: pop 0.5s var(--ease-spring); }
+
+    @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    .step-icon {
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+      width: clamp(32px, 3.4vw, 46px);
+      height: clamp(32px, 3.4vw, 46px);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--icon-bg, #e0efff);
+      color: var(--icon-fg, var(--blue-strong));
+      transition: background 0.45s ease, color 0.45s ease, box-shadow 0.45s ease;
+    }
+
+    .step-icon svg { width: 62%; height: 62%; }
+
+    .step-card.is-done .step-icon {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .step-check {
+      position: absolute;
+      right: -5px;
+      top: -5px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      color: var(--green-strong);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transform: scale(0);
+      transition: transform 0.4s var(--ease-spring) 0.15s;
+    }
+
+    .step-check svg { width: 70%; height: 70%; }
+    .step-card.is-done .step-check { transform: scale(1); }
+
+    .step-body {
+      position: relative;
+      z-index: 1;
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .step-title { font-size: clamp(0.72rem, 1.1vw, 0.98rem); font-weight: 800; line-height: 1.15; }
+
+    .step-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: clamp(0.52rem, 0.76vw, 0.68rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-no {
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: rgba(15, 31, 56, 0.08);
+      letter-spacing: 0.04em;
+    }
+
+    .step-card.is-done .step-no { background: rgba(255, 255, 255, 0.22); }
+    .step-card.is-locked .step-status { color: #64748b; }
+    .step-card.is-active .step-status { color: #0369a1; }
+
+    .step-arrow {
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+      width: clamp(22px, 2.2vw, 30px);
+      height: clamp(22px, 2.2vw, 30px);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #e2e8f0;
+      color: #334155;
+      transition: transform 0.28s var(--ease-spring), background 0.45s ease, color 0.45s ease;
+    }
+
+    .step-arrow svg { width: 55%; height: 55%; }
+    .step-card.is-done .step-arrow { background: rgba(255, 255, 255, 0.22); color: #fff; }
+    .step-card:hover .step-arrow { transform: translateX(3px); }
+
+    .check-footer {
+      position: relative;
+      z-index: 2;
+      padding: clamp(8px, 1.6vh, 16px) clamp(12px, 1.4vw, 20px) clamp(10px, 1.8vh, 18px);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+      font-size: clamp(0.58rem, 0.8vw, 0.72rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .progress-meta strong { color: #e0f2fe; font-size: 1.1em; }
+
+    .progress-track {
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.18);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 50%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #16a34a, #4ade80);
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+      transition: width 0.8s var(--ease-out);
+    }
+
+    /* =========================================================
+       6. TEK BAŞINA AÇILDIĞINDA DEMO TETİKLEYİCİ
+       ========================================================= */
+    .demo-trigger {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .demo-trigger[hidden], .demo-reset[hidden] { display: none; }
+
+    .demo-card {
+      max-width: 440px;
+      padding: 28px 30px;
+      border-radius: 20px;
+      text-align: center;
+      background: linear-gradient(165deg, rgba(14, 32, 60, 0.95), rgba(7, 16, 32, 0.97));
+      border: 1px solid var(--line);
+      box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.8);
+    }
+
+    .demo-card h1 { font-size: 1.1rem; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .demo-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 18px; }
+
+    .demo-btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 26px;
+      font: inherit;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      box-shadow: 0 12px 28px -10px rgba(37, 99, 235, 0.9);
+      transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease;
+    }
+
+    .demo-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 18px 34px -10px rgba(37, 99, 235, 1); }
+
+    .demo-reset {
+      position: fixed;
+      right: 14px;
+      bottom: 12px;
+      z-index: 40;
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(8, 20, 40, 0.85);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .demo-reset:hover { color: #fff; border-color: var(--blue); }
+
+    /* =========================================================
+       7. DUYARLI (RESPONSIVE) DÜZEN
+       ========================================================= */
+    @media (max-width: 900px) {
+      .prep-grid { grid-template-columns: minmax(0, 1.65fr) minmax(215px, 1fr); }
+    }
+
+    @media (max-height: 460px) {
+      .panel-sub { display: none; }
+      .check-footer { padding-top: 6px; padding-bottom: 8px; }
+      .progress-meta { margin-bottom: 4px; }
+      .step-icon { border-radius: 9px; }
+    }
+
+    @media (max-width: 640px), (orientation: portrait) and (max-width: 900px) {
+      body { overflow: auto; }
+      .prep-scene { overflow-y: auto; }
+      .prep-grid { grid-template-columns: 1fr; grid-template-rows: minmax(300px, 1.3fr) auto; height: auto; min-height: 100%; }
+      .check-list { flex-direction: row; flex-wrap: wrap; }
+      .check-list li { flex: 1 1 calc(50% - 6px); max-height: none; min-height: 62px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .is-visible .desk-item, .is-visible .check-list li, .is-visible .panel { animation-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="sr-only">Vardiyayı Güvenle Tamamla – Laboratuvar Hazırlık Sahnesi</h1>
+
+  <!-- =========================================================
+       HAZIRLIK SAHNESİ
+       Başlangıçta display: none. 'vardiyayiOnayla' sinyali gelince fade-in ile açılır.
+       ========================================================= -->
+  <section class="prep-scene" id="hazirlik-sahnesi" aria-label="Laboratuvar Hazırlık Sahnesi" aria-hidden="true">
+    <div class="prep-grid">
+
+      <!-- ================= SOL PANEL: HAZIRLIK MASASI ================= -->
+      <article class="panel panel-desk" id="panel-desk" aria-labelledby="desk-title">
+
+        <!-- Arka plan: laboratuvar dolapları + periyodik tablo (yarı saydam) -->
+        <svg class="desk-bg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+          <defs>
+            <pattern id="bgTiles" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0H0V40" fill="none" stroke="rgba(125,211,252,0.06)" stroke-width="1" />
+            </pattern>
+            <g id="bgFlask">
+              <path d="M-6 -30 L-6 -14 L-18 8 Q-20 12 -15 12 L15 12 Q20 12 18 8 L6 -14 L6 -30 Z" />
+            </g>
+            <g id="bgBottle">
+              <path d="M-5 -30 h10 v8 q8 3 8 12 v20 q0 2 -2 2 h-22 q-2 0 -2 -2 v-20 q0 -9 8 -12 Z" />
+            </g>
+            <g id="bgTube">
+              <rect x="-4" y="-28" width="8" height="40" rx="4" />
+            </g>
+          </defs>
+
+          <rect width="1000" height="600" fill="url(#bgTiles)" />
+
+          <!-- Dolaplar -->
+          <g fill="rgba(15,40,70,0.45)" stroke="rgba(125,211,252,0.35)" stroke-width="1.5">
+            <rect x="24" y="24" width="150" height="190" rx="6" />
+            <rect x="184" y="24" width="150" height="190" rx="6" />
+            <rect x="344" y="24" width="150" height="190" rx="6" />
+          </g>
+          <g fill="none" stroke="rgba(125,211,252,0.22)" stroke-width="1.2">
+            <rect x="32" y="32" width="64" height="174" rx="3" /><rect x="102" y="32" width="64" height="174" rx="3" />
+            <rect x="192" y="32" width="64" height="174" rx="3" /><rect x="262" y="32" width="64" height="174" rx="3" />
+            <rect x="352" y="32" width="64" height="174" rx="3" /><rect x="422" y="32" width="64" height="174" rx="3" />
+            <path d="M32 96H166M32 152H166M192 96H326M192 152H326M352 96H486M352 152H486" />
+          </g>
+          <g fill="rgba(186,230,253,0.5)">
+            <rect x="92" y="110" width="3" height="22" rx="1.5" /><rect x="105" y="110" width="3" height="22" rx="1.5" />
+            <rect x="252" y="110" width="3" height="22" rx="1.5" /><rect x="265" y="110" width="3" height="22" rx="1.5" />
+            <rect x="412" y="110" width="3" height="22" rx="1.5" /><rect x="425" y="110" width="3" height="22" rx="1.5" />
+          </g>
+          <g fill="rgba(125,211,252,0.2)">
+            <use href="#bgFlask" x="56" y="82" /><use href="#bgBottle" x="130" y="82" /><use href="#bgTube" x="78" y="138" />
+            <use href="#bgTube" x="90" y="138" /><use href="#bgFlask" x="140" y="138" /><use href="#bgBottle" x="214" y="82" />
+            <use href="#bgFlask" x="296" y="82" /><use href="#bgBottle" x="232" y="138" /><use href="#bgTube" x="290" y="138" />
+            <use href="#bgTube" x="304" y="138" /><use href="#bgFlask" x="376" y="82" /><use href="#bgTube" x="452" y="82" />
+            <use href="#bgTube" x="464" y="82" /><use href="#bgBottle" x="392" y="138" /><use href="#bgFlask" x="460" y="138" />
+            <use href="#bgFlask" x="56" y="194" /><use href="#bgBottle" x="140" y="194" /><use href="#bgFlask" x="300" y="194" />
+            <use href="#bgBottle" x="380" y="194" /><use href="#bgTube" x="456" y="194" />
+          </g>
+
+          <!-- Periyodik tablo posteri -->
+          <rect x="532" y="22" width="446" height="302" rx="8" fill="rgba(10,30,58,0.55)" stroke="rgba(125,211,252,0.4)" stroke-width="1.5" />
+          <text x="755" y="52" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="17" font-weight="800" letter-spacing="2.4" fill="rgba(186,230,253,0.8)">BİLİM DAHA GÜVENLİ BİR DÜNYA İÇİN</text>
+          <g id="periodicTable"></g>
+        </svg>
+
+        <header class="panel-head">
+          <div>
+            <h2 class="panel-title" id="desk-title">
+              <span class="title-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14M6 3v15a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V3" /><path d="M6 12h12" /></svg>
+              </span>
+              HAZIRLIK MASASI
+            </h2>
+            <p class="panel-sub">Vardiya için gerekli malzemeler masaya yerleştirildi.</p>
+          </div>
+          <span class="badge-outline" id="materials-badge"><span class="dot" aria-hidden="true"></span>3 MALZEME SEÇİLDİ</span>
+        </header>
+
+        <div class="desk-stage">
+          <div class="desk-toast" id="desk-toast" role="status" aria-live="polite">
+            <span class="toast-icon" id="toast-icon" aria-hidden="true">i</span>
+            <span id="toast-text"></span>
+          </div>
+
+          <svg class="desk-svg" id="desk-svg" viewBox="-70 0 900 470" preserveAspectRatio="xMidYMax meet" role="img"
+               aria-label="Hazırlık masası: Madde A şişesi, Saf Su şişesi, 250 mililitrelik dereceli beher ve metal tepside karıştırma çubuğu">
+            <defs>
+              <linearGradient id="gTableTop" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#6f7d90" />
+                <stop offset="0.5" stop-color="#9ba7b7" />
+                <stop offset="1" stop-color="#76849a" />
+              </linearGradient>
+              <linearGradient id="gTableEdge" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#dfe6ee" />
+                <stop offset="0.14" stop-color="#8794a5" />
+                <stop offset="1" stop-color="#36424f" />
+              </linearGradient>
+              <linearGradient id="gCabinet" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1b293c" />
+                <stop offset="1" stop-color="#0a1320" />
+              </linearGradient>
+              <pattern id="pBrushed" width="900" height="5" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="1" x2="900" y2="1" stroke="#ffffff" stroke-opacity="0.07" />
+                <line x1="0" y1="3.5" x2="900" y2="3.5" stroke="#000000" stroke-opacity="0.05" />
+              </pattern>
+              <radialGradient id="gShadow">
+                <stop offset="0" stop-color="#000" stop-opacity="0.55" />
+                <stop offset="1" stop-color="#000" stop-opacity="0" />
+              </radialGradient>
+              <radialGradient id="gTableShine" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.22" />
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="gGlass" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#e0f2fe" stop-opacity="0.32" />
+                <stop offset="0.18" stop-color="#bae6fd" stop-opacity="0.10" />
+                <stop offset="0.6" stop-color="#bae6fd" stop-opacity="0.05" />
+                <stop offset="0.86" stop-color="#e0f2fe" stop-opacity="0.16" />
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0.32" />
+              </linearGradient>
+              <linearGradient id="gCap" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#60a5fa" />
+                <stop offset="0.45" stop-color="#2563eb" />
+                <stop offset="1" stop-color="#1e3a8a" />
+              </linearGradient>
+              <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#bae6fd" stop-opacity="0.85" />
+                <stop offset="1" stop-color="#38bdf8" stop-opacity="0.9" />
+              </linearGradient>
+              <linearGradient id="gBeakerWater" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7dd3fc" stop-opacity="0.6" />
+                <stop offset="1" stop-color="#0284c7" stop-opacity="0.78" />
+              </linearGradient>
+              <linearGradient id="gSolution" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ddd6fe" stop-opacity="0.85" />
+                <stop offset="1" stop-color="#7c3aed" stop-opacity="0.9" />
+              </linearGradient>
+              <radialGradient id="gPill" cx="0.35" cy="0.3" r="0.75">
+                <stop offset="0" stop-color="#ffffff" />
+                <stop offset="0.7" stop-color="#e5edf6" />
+                <stop offset="1" stop-color="#b6c3d3" />
+              </radialGradient>
+              <linearGradient id="gMetal" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f1f5f9" />
+                <stop offset="0.45" stop-color="#a9b6c6" />
+                <stop offset="1" stop-color="#5f6d80" />
+              </linearGradient>
+              <linearGradient id="gMetalInner" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#475569" />
+                <stop offset="1" stop-color="#9aa8b9" />
+              </linearGradient>
+              <linearGradient id="gScan" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#38bdf8" stop-opacity="0" />
+                <stop offset="0.5" stop-color="#7dd3fc" stop-opacity="0.6" />
+                <stop offset="1" stop-color="#38bdf8" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="gShine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0" />
+                <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.9" />
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+              </linearGradient>
+
+              <clipPath id="clipWater">
+                <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z" />
+              </clipPath>
+              <clipPath id="clipJar">
+                <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z" />
+              </clipPath>
+              <clipPath id="clipBeaker">
+                <path d="M508 184 L508 340 Q508 349 517 349 L643 349 Q652 349 652 340 L652 184 Z" />
+              </clipPath>
+              <clipPath id="clipLabel">
+                <rect x="574" y="260" width="76" height="60" rx="5" />
+              </clipPath>
+            </defs>
+
+            <!-- ============ MASA ============ -->
+            <g id="table">
+              <polygon points="-640,322 1540,322 1600,398 -700,398" fill="url(#gTableTop)" />
+              <polygon points="-640,322 1540,322 1600,398 -700,398" fill="url(#pBrushed)" />
+              <ellipse cx="420" cy="350" rx="380" ry="26" fill="url(#gTableShine)" />
+              <line x1="-640" y1="322.5" x2="1540" y2="322.5" stroke="#d6dee8" stroke-opacity="0.55" />
+              <rect x="-700" y="398" width="2300" height="22" fill="url(#gTableEdge)" />
+              <line x1="-700" y1="398.6" x2="1600" y2="398.6" stroke="#ffffff" stroke-opacity="0.7" />
+              <rect x="-700" y="420" width="2300" height="70" fill="url(#gCabinet)" />
+              <g id="cabinetDoors"></g>
+              <g font-size="9.5" font-weight="700" letter-spacing="1.4" fill="rgba(15,23,42,0.55)" text-anchor="middle">
+                <text x="190" y="413">MADDE A</text>
+                <text x="340" y="413">SAF SU</text>
+                <text x="450" y="413">KARIŞTIRMA ÇUBUĞU</text>
+                <text x="580" y="413">BEHER 250 mL</text>
+              </g>
+            </g>
+
+            <rect id="scanBeam" x="-70" y="318" width="80" height="82" fill="url(#gScan)" />
+
+            <!-- ============ BEHER (250 mL, DERECELİ) ============ -->
+            <g class="desk-item" id="itemBeaker" style="--d:0.24s">
+              <ellipse cx="580" cy="353" rx="90" ry="7" fill="url(#gShadow)" />
+              <path d="M505 182 L505 340 Q505 352 517 352 L643 352 Q655 352 655 340 L655 182 Z" fill="url(#gGlass)" />
+
+              <path id="pourStream" class="pour-stream" pathLength="1" d="M562 140 C563 175 566 220 567 346" />
+              <path id="pourStreamFlow" class="pour-stream-flow" pathLength="1" d="M562 140 C563 175 566 220 567 346" />
+
+              <g clip-path="url(#clipBeaker)">
+                <g id="beakerFill">
+                  <rect x="500" y="258" width="160" height="96" fill="url(#gBeakerWater)" />
+                  <rect id="solutionTint" x="500" y="258" width="160" height="96" fill="url(#gSolution)" />
+                  <ellipse cx="580" cy="258" rx="74" ry="4.5" fill="#e0f2fe" fill-opacity="0.6" />
+                  <circle class="bubble" cx="540" cy="344" r="2.4" fill="#fff" style="--bd:0s" />
+                  <circle class="bubble" cx="572" cy="346" r="1.8" fill="#fff" style="--bd:0.35s" />
+                  <circle class="bubble" cx="604" cy="345" r="2.6" fill="#fff" style="--bd:0.7s" />
+                  <circle class="bubble" cx="630" cy="346" r="1.6" fill="#fff" style="--bd:0.2s" />
+                  <circle class="bubble" cx="556" cy="347" r="1.4" fill="#fff" style="--bd:0.9s" />
+                </g>
+                <g id="beakerSediment"></g>
+              </g>
+
+              <g id="fallLayer"></g>
+              <g id="rodSlot"></g>
+
+              <!-- Ön cam, kenar, gaga, derecelendirme -->
+              <path d="M496 177 Q503 179 505 186 L505 340 Q505 352 517 352 L643 352 Q655 352 655 340 L655 184 Q656 178 662 177"
+                    fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.5" stroke-linejoin="round" />
+              <path d="M492 176.5 L664 176.5" stroke="rgba(224,242,254,0.92)" stroke-width="3.5" stroke-linecap="round" />
+              <rect x="512" y="192" width="5" height="140" rx="2.5" fill="#ffffff" fill-opacity="0.28" />
+              <rect x="645" y="196" width="3" height="130" rx="1.5" fill="#ffffff" fill-opacity="0.16" />
+
+              <g stroke="rgba(255,255,255,0.8)" stroke-linecap="round">
+                <path d="M509 318H532M509 288H532M509 258H532M509 228H532M509 198H532" stroke-width="1.6" />
+                <path d="M509 333H521M509 303H521M509 273H521M509 243H521M509 213H521" stroke-width="1.1" />
+              </g>
+              <g font-size="10" font-weight="700" fill="rgba(240,249,255,0.9)">
+                <text x="536" y="321.5">50</text>
+                <text x="536" y="291.5">100</text>
+                <text x="536" y="261.5">150</text>
+                <text x="536" y="231.5">200</text>
+                <text x="536" y="201.5">250</text>
+              </g>
+              <text x="612" y="214" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="0.6" fill="rgba(224,242,254,0.75)">250 mL</text>
+
+              <!-- Marking spot (etiket alanı) -->
+              <rect x="576" y="262" width="72" height="56" rx="4" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.5)" stroke-dasharray="3 3" />
+              <text x="612" y="293" text-anchor="middle" font-size="6.5" font-weight="700" letter-spacing="0.8" fill="rgba(255,255,255,0.6)">ETİKET ALANI</text>
+
+              <!-- Yapışan etiket -->
+              <g id="beakerLabel">
+                <rect x="574" y="260" width="76" height="60" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" />
+                <path d="M574 265 Q574 260 579 260 L645 260 Q650 260 650 265 L650 274 L574 274 Z" fill="#f59e0b" />
+                <text x="612" y="270.5" text-anchor="middle" font-size="7" font-weight="800" letter-spacing="1" fill="#ffffff">ÇÖZELTİ</text>
+                <text x="612" y="288" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">MADDE A</text>
+                <text x="612" y="299" text-anchor="middle" font-size="7" font-weight="700" fill="#334155">Saf Su · 150 mL</text>
+                <line x1="580" y1="305" x2="644" y2="305" stroke="#e2e8f0" />
+                <text id="labelDate" x="612" y="314" text-anchor="middle" font-size="6.5" font-weight="600" fill="#64748b">Vardiya</text>
+                <g clip-path="url(#clipLabel)">
+                  <polygon id="labelShine" points="548,250 570,250 548,330 526,330" fill="url(#gShine)" />
+                </g>
+              </g>
+
+              <g id="volTag">
+                <rect x="668" y="242" width="86" height="26" rx="13" fill="rgba(8,20,40,0.88)" stroke="#38bdf8" stroke-width="1.2" />
+                <circle cx="682" cy="255" r="4" fill="#38bdf8" />
+                <text id="volText" x="720" y="259" text-anchor="middle" font-size="11" font-weight="800" fill="#e0f2fe">0 mL</text>
+              </g>
+            </g>
+
+            <!-- ============ METAL TEPSİ + KARIŞTIRMA ÇUBUĞU ============ -->
+            <g class="desk-item" id="itemTray" style="--d:0.36s">
+              <ellipse cx="450" cy="395" rx="126" ry="6" fill="url(#gShadow)" />
+              <path d="M352 364 L548 364 L560 386 Q562 393 553 393 L347 393 Q338 393 340 386 Z" fill="url(#gMetal)" stroke="#e2e8f0" stroke-opacity="0.6" />
+              <path d="M362 368 L538 368 L547 385 L353 385 Z" fill="url(#gMetalInner)" />
+              <line x1="352" y1="364.5" x2="548" y2="364.5" stroke="#ffffff" stroke-opacity="0.85" />
+              <line x1="392" y1="381" x2="496" y2="379.5" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" />
+              <ellipse cx="508" cy="378.8" rx="12" ry="4.5" fill="url(#gMetal)" stroke="#e2e8f0" stroke-width="0.8" />
+              <g id="stirRod">
+                <line x1="365" y1="375" x2="535" y2="369" stroke="rgba(224,242,254,0.92)" stroke-width="5" stroke-linecap="round" />
+                <line x1="368" y1="374" x2="532" y2="368" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-opacity="0.9" />
+              </g>
+            </g>
+
+            <!-- ============ SAF SU ŞİŞESİ ============ -->
+            <g class="desk-item" id="itemWater" style="--d:0.12s">
+              <ellipse cx="340" cy="353" rx="54" ry="6.5" fill="url(#gShadow)" />
+              <g id="bottleWater">
+                <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z" fill="url(#gGlass)" />
+                <g clip-path="url(#clipWater)">
+                  <g id="waterInner">
+                    <path d="M296 220 Q340 229 384 220 L384 356 L296 356 Z" fill="url(#gWater)" />
+                    <path d="M302 221.5 Q340 230 378 221.5" fill="none" stroke="#f0f9ff" stroke-opacity="0.85" stroke-width="1.6" />
+                  </g>
+                </g>
+                <path d="M324 168 L324 190 Q324 200 312 206 Q300 212 300 226 L300 340 Q300 352 312 352 L368 352 Q380 352 380 340 L380 226 Q380 212 368 206 Q356 200 356 190 L356 168 Z"
+                      fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.2" stroke-linejoin="round" />
+                <path d="M309 228 L309 336" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" />
+                <path d="M371 234 L371 330" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.5" stroke-linecap="round" />
+                <rect x="321" y="166" width="38" height="7" rx="2" fill="rgba(219,234,254,0.35)" stroke="rgba(219,234,254,0.8)" stroke-width="1.2" />
+                <rect x="306" y="262" width="68" height="42" rx="5" fill="#ffffff" />
+                <path d="M306 267 Q306 262 311 262 L369 262 Q374 262 374 267 L374 271 L306 271 Z" fill="#2563eb" />
+                <text x="340" y="289" text-anchor="middle" font-size="15" font-weight="800" fill="#0f2a52">Saf Su</text>
+                <text x="340" y="299" text-anchor="middle" font-size="7" font-weight="600" fill="#475569">H₂O · 500 mL</text>
+                <g id="waterCap">
+                  <rect x="319" y="146" width="42" height="26" rx="4" fill="url(#gCap)" />
+                  <path d="M325 151V168M330 151V168M335 151V168M340 151V168M345 151V168M350 151V168M355 151V168" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.2" />
+                  <rect x="319" y="146" width="42" height="5" rx="2.5" fill="#93c5fd" fill-opacity="0.6" />
+                </g>
+              </g>
+            </g>
+
+            <!-- ============ MADDE A ŞİŞESİ ============ -->
+            <g class="desk-item" id="itemJar" style="--d:0s">
+              <ellipse cx="190" cy="353" rx="64" ry="7" fill="url(#gShadow)" />
+              <g id="jarA">
+                <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z" fill="url(#gGlass)" />
+                <g clip-path="url(#clipJar)">
+                  <g id="pillsInner"></g>
+                </g>
+                <path d="M160 196 L160 204 Q160 212 151 216 Q142 220 142 232 L142 338 Q142 352 156 352 L224 352 Q238 352 238 338 L238 232 Q238 220 229 216 Q220 212 220 204 L220 196 Z"
+                      fill="none" stroke="rgba(219,234,254,0.88)" stroke-width="2.2" stroke-linejoin="round" />
+                <path d="M151 236 L151 338" stroke="#ffffff" stroke-opacity="0.45" stroke-width="5" stroke-linecap="round" />
+                <path d="M229 240 L229 332" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.5" stroke-linecap="round" />
+                <rect x="157" y="194" width="66" height="7" rx="2" fill="rgba(219,234,254,0.35)" stroke="rgba(219,234,254,0.8)" stroke-width="1.2" />
+                <rect x="150" y="226" width="80" height="38" rx="5" fill="#ffffff" />
+                <path d="M150 231 Q150 226 155 226 L225 226 Q230 226 230 231 L230 234 L150 234 Z" fill="#1d4ed8" />
+                <text x="190" y="252" text-anchor="middle" font-size="16" font-weight="800" fill="#0f2a52">Madde A</text>
+                <text x="190" y="260.5" text-anchor="middle" font-size="7" font-weight="600" fill="#475569">Saf · 250 g</text>
+                <g id="jarCap">
+                  <rect x="150" y="170" width="80" height="30" rx="5" fill="url(#gCap)" />
+                  <path d="M158 175V194M165 175V194M172 175V194M179 175V194M186 175V194M193 175V194M200 175V194M207 175V194M214 175V194M221 175V194" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.3" />
+                  <rect x="150" y="170" width="80" height="6" rx="3" fill="#93c5fd" fill-opacity="0.6" />
+                  <rect x="152" y="195" width="76" height="4" rx="2" fill="#1e3a8a" />
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </article>
+
+      <!-- ================= SAĞ PANEL: KONTROL LİSTESİ ================= -->
+      <aside class="panel panel-check" id="panel-check" aria-labelledby="check-title">
+        <header class="panel-head">
+          <div>
+            <h2 class="panel-title" id="check-title">
+              <span class="title-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h10M10 12h10M10 18h10" /><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11" /><circle cx="5" cy="18" r="1.3" /></svg>
+              </span>
+              KONTROL LİSTESİ
+            </h2>
+            <p class="panel-sub">İşe başlamadan önce aşağıdaki adımları onayla.</p>
+          </div>
+          <div class="badge-circle" aria-label="4 adım">
+            <svg class="ring" viewBox="0 0 60 60" aria-hidden="true">
+              <circle class="ring-track" cx="30" cy="30" r="27" />
+              <circle class="ring-fill" id="ring-fill" cx="30" cy="30" r="27" pathLength="100" />
+            </svg>
+            <strong>4</strong>
+            <span>ADIM</span>
+          </div>
+        </header>
+
+        <ol class="check-list" id="check-list">
+          <li style="--i:0">
+            <button type="button" class="step-card is-done" id="step-materials" data-state="done">
+              <span class="step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3" /><path d="M7.4 15h9.2" /><circle cx="10.5" cy="17.6" r="0.6" fill="currentColor" /><circle cx="13.6" cy="18.3" r="0.6" fill="currentColor" /></svg>
+                <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+              </span>
+              <span class="step-body">
+                <span class="step-title">Malzemeleri Seç</span>
+                <span class="step-status"><span class="step-no">01</span><span class="step-status-text">Tamamlandı</span></span>
+              </span>
+              <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+            </button>
+          </li>
+
+          <li style="--i:1">
+            <button type="button" class="step-card is-done" id="step-workspace" data-state="done">
+              <span class="step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2" /><path d="M9 3h6v3H9z" /><path d="m8.6 13.4 2.4 2.4 4.6-4.8" /></svg>
+                <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+              </span>
+              <span class="step-body">
+                <span class="step-title">Çalışma Alanını Kontrol Et</span>
+                <span class="step-status"><span class="step-no">02</span><span class="step-status-text">Tamamlandı</span></span>
+              </span>
+              <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+            </button>
+          </li>
+
+          <li style="--i:2">
+            <button type="button" class="step-card is-pending is-active" id="step-label" data-state="active" style="--icon-bg:#fff3e0; --icon-fg:#ea580c;">
+              <span class="step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" /><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor" /></svg>
+                <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+              </span>
+              <span class="step-body">
+                <span class="step-title">Kabı Etiketle</span>
+                <span class="step-status"><span class="step-no">03</span><span class="step-status-text">Sıradaki adım</span></span>
+              </span>
+              <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+            </button>
+          </li>
+
+          <li style="--i:3">
+            <button type="button" class="step-card is-pending is-locked" id="step-prepare" data-state="locked" aria-disabled="true" style="--icon-bg:#e0efff; --icon-fg:#2563eb;">
+              <span class="step-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" /><path d="M10 8.4v7.2l6-3.6z" fill="currentColor" /></svg>
+                <span class="step-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+              </span>
+              <span class="step-body">
+                <span class="step-title">Çözeltiyi Hazırla</span>
+                <span class="step-status"><span class="step-no">04</span><span class="step-status-text">Bekliyor</span></span>
+              </span>
+              <span class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6" /></svg></span>
+            </button>
+          </li>
+        </ol>
+
+        <footer class="check-footer">
+          <div class="progress-meta"><span>İlerleme</span><strong id="progress-text">2 / 4</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="Kontrol listesi ilerlemesi" aria-valuemin="0" aria-valuemax="4" aria-valuenow="2" id="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </footer>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Yalnızca dosya tek başına açıldığında görünen demo tetikleyici -->
+  <div class="demo-trigger" id="demo-trigger" hidden>
+    <div class="demo-card">
+      <h1>VARDİYA PLANI HAZIR</h1>
+      <p>Ana projede bu sahne "Planımı Onayla" butonuna basıldıktan sonra otomatik açılır. Burada sinyali elle gönderebilirsin.</p>
+      <button type="button" class="demo-btn" id="demo-confirm-btn">VARDİYAYI ONAYLA</button>
+    </div>
+  </div>
+  <button type="button" class="demo-reset" id="demo-reset-btn" hidden>Sahneyi sıfırla</button>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* =========================================================
+         0. TEMEL REFERANSLAR
+         ========================================================= */
+      const NS = 'http://www.w3.org/2000/svg';
+      const $ = (s) => document.querySelector(s);
+      const isEmbedded = window.self !== window.top;
+      document.body.classList.add(isEmbedded ? 'is-embedded' : 'is-standalone');
+
+      const scene = $('#hazirlik-sahnesi');
+      const el = {
+        water: $('#bottleWater'), waterCap: $('#waterCap'), waterInner: $('#waterInner'),
+        jar: $('#jarA'), jarCap: $('#jarCap'), pills: $('#pillsInner'),
+        beakerFill: $('#beakerFill'), tint: $('#solutionTint'), sediment: $('#beakerSediment'),
+        fall: $('#fallLayer'), stream: $('#pourStream'), streamFlow: $('#pourStreamFlow'),
+        rod: $('#stirRod'), rodSlot: $('#rodSlot'),
+        label: $('#beakerLabel'), labelShine: $('#labelShine'), labelDate: $('#labelDate'),
+        volTag: $('#volTag'), volText: $('#volText'), scan: $('#scanBeam'),
+        toast: $('#desk-toast'), toastText: $('#toast-text'), toastIcon: $('#toast-icon'),
+        progressText: $('#progress-text'), progressFill: $('#progress-fill'),
+        progressTrack: $('#progress-track'), ringFill: $('#ring-fill')
+      };
+      const items = { jar: $('#itemJar'), water: $('#itemWater'), beaker: $('#itemBeaker'), tray: $('#itemTray') };
+      const steps = {
+        materials: $('#step-materials'), workspace: $('#step-workspace'),
+        label: $('#step-label'), prepare: $('#step-prepare')
+      };
+      const rodHome = el.rod.parentNode;
+
+      const ANIMATED = [el.water, el.waterCap, el.waterInner, el.jar, el.jarCap, el.pills, el.beakerFill,
+        el.tint, el.sediment, el.stream, el.rod, el.label, el.labelShine];
+
+      let state = { labeled: false, prepared: false, busy: false };
+      let runId = 0;
+      const ABORT = Symbol('abort');
+      const running = new Set();
+
+      /* =========================================================
+         1. YARDIMCILAR
+         ========================================================= */
+      function svgEl(tag, attrs, parent) {
+        const n = document.createElementNS(NS, tag);
+        Object.keys(attrs).forEach((k) => n.setAttribute(k, attrs[k]));
+        if (parent) parent.appendChild(n);
+        return n;
+      }
+
+      function seeded(seed) {
+        return function () {
+          seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      /* Web Animations API sarmalayıcı: bitince son durumu inline stile yazar, sıfırlamada iptal edilir */
+      function tween(node, frames, duration, opts) {
+        const id = runId;
+        const a = node.animate(frames, Object.assign({ duration, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'forwards' }, opts || {}));
+        running.add(a);
+        return a.finished.then(() => {
+          running.delete(a);
+          if (id !== runId) throw ABORT;
+          try { a.commitStyles(); } catch (e) { /* eleman görünmüyorsa yoksay */ }
+          a.cancel();
+        }, () => { running.delete(a); throw ABORT; });
+      }
+
+      function wait(ms) {
+        const id = runId;
+        return new Promise((res, rej) => setTimeout(() => (id === runId ? res() : rej(ABORT)), ms));
+      }
+
+      function replayClass(node, cls) {
+        node.classList.remove(cls);
+        void node.getBoundingClientRect();
+        node.classList.add(cls);
+        node.addEventListener('animationend', () => node.classList.remove(cls), { once: true });
+      }
+
+      function flash(nodes, cls, ms) {
+        nodes.forEach((n) => n.classList.add(cls));
+        setTimeout(() => nodes.forEach((n) => n.classList.remove(cls)), ms || 1500);
+      }
+
+      let toastTimer = null;
+      function toast(msg, type) {
+        const t = type || 'info';
+        el.toastText.textContent = msg;
+        el.toast.dataset.type = t;
+        el.toastIcon.textContent = t === 'success' ? '✓' : t === 'warn' ? '!' : 'i';
+        el.toast.classList.add('is-on');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.toast.classList.remove('is-on'), 3600);
+      }
+
+      function notifyParent(msg) {
+        if (isEmbedded) {
+          try { window.parent.postMessage(msg, '*'); } catch (e) { /* yoksay */ }
+        }
+        document.dispatchEvent(new CustomEvent('hazirlik:' + msg.type, { detail: msg }));
+      }
+
+      /* =========================================================
+         2. DEKOR ÜRETİMİ (periyodik tablo, dolap kapakları, haplar, tortu)
+         ========================================================= */
+      function buildPeriodicTable() {
+        const syms = ('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr ' +
+          'Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu ' +
+          'Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg ' +
+          'Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og').split(' ');
+        const pos = (z) => {
+          if (z === 1) return [1, 1];
+          if (z === 2) return [18, 1];
+          if (z <= 10) return z <= 4 ? [z - 2, 2] : [z + 8, 2];
+          if (z <= 18) return z <= 12 ? [z - 10, 3] : [z, 3];
+          if (z <= 36) return [z - 18, 4];
+          if (z <= 54) return [z - 36, 5];
+          if (z <= 56) return [z - 54, 6];
+          if (z <= 71) return [z - 54, 9];
+          if (z <= 86) return [z - 68, 6];
+          if (z <= 88) return [z - 86, 7];
+          if (z <= 103) return [z - 86, 10];
+          return [z - 100, 7];
+        };
+        const color = (col, row) => {
+          if (row >= 9) return 'rgba(244,114,182,0.2)';
+          if (col === 18) return 'rgba(167,139,250,0.25)';
+          if (col === 1 && row > 1) return 'rgba(248,113,113,0.24)';
+          if (col === 2) return 'rgba(251,146,60,0.22)';
+          if (col >= 3 && col <= 12) return 'rgba(56,189,248,0.18)';
+          return 'rgba(52,211,153,0.2)';
+        };
+        const g = $('#periodicTable');
+        const x0 = 548, y0 = 70, cell = 23;
+        syms.forEach((s, i) => {
+          const [c, r] = pos(i + 1);
+          const x = x0 + (c - 1) * cell;
+          const y = y0 + (r - 1) * cell + (r >= 9 ? 6 : 0);
+          svgEl('rect', { x, y, width: 21, height: 21, rx: 2.5, fill: color(c, r), stroke: 'rgba(125,211,252,0.35)', 'stroke-width': 0.7 }, g);
+          const t = svgEl('text', { x: x + 10.5, y: y + 14, 'text-anchor': 'middle', 'font-size': 8.5, 'font-weight': 700,
+            'font-family': 'Plus Jakarta Sans, sans-serif', fill: 'rgba(224,242,254,0.75)' }, g);
+          t.textContent = s;
+        });
+      }
+
+      function buildCabinetDoors() {
+        const g = $('#cabinetDoors');
+        for (let x = -700; x < 1600; x += 150) {
+          svgEl('rect', { x: x + 8, y: 428, width: 134, height: 56, rx: 4, fill: 'none', stroke: 'rgba(148,163,184,0.2)', 'stroke-width': 1.2 }, g);
+          svgEl('rect', { x: x + 60, y: 436, width: 30, height: 4, rx: 2, fill: 'rgba(203,213,225,0.35)' }, g);
+        }
+      }
+
+      function buildPills() {
+        const rand = seeded(7);
+        let row = 0;
+        for (let y = 347; y >= 240; y -= 6.2, row++) {
+          const off = row % 2 ? 3.8 : 0;
+          for (let x = 146 + off; x <= 235; x += 7.6) {
+            svgEl('circle', {
+              cx: (x + (rand() - 0.5) * 2).toFixed(1), cy: (y + (rand() - 0.5) * 1.6).toFixed(1),
+              r: (3 + rand() * 0.9).toFixed(2), fill: 'url(#gPill)', stroke: 'rgba(148,163,184,0.55)', 'stroke-width': 0.5
+            }, el.pills);
+          }
+        }
+      }
+
+      function buildSediment() {
+        const rand = seeded(21);
+        for (let i = 0; i < 56; i++) {
+          svgEl('circle', {
+            cx: (516 + rand() * 128).toFixed(1), cy: (341 + rand() * 7).toFixed(1),
+            r: (2 + rand() * 1.3).toFixed(2), fill: 'url(#gPill)', stroke: 'rgba(148,163,184,0.5)', 'stroke-width': 0.4
+          }, el.sediment);
+        }
+      }
+
+      /* =========================================================
+         3. KONTROL LİSTESİ DURUM YÖNETİMİ
+         ========================================================= */
+      const STATUS = { done: 'Tamamlandı', active: 'Sıradaki adım', locked: 'Bekliyor', working: 'Uygulanıyor…' };
+
+      function setStep(card, st, text) {
+        card.classList.remove('is-done', 'is-pending', 'is-active', 'is-locked', 'is-working');
+        if (st === 'done') card.classList.add('is-done');
+        else card.classList.add('is-pending', 'is-' + st);
+        card.dataset.state = st;
+        card.querySelector('.step-status-text').textContent = text || STATUS[st];
+        card.setAttribute('aria-disabled', st === 'locked' || st === 'working' ? 'true' : 'false');
+      }
+
+      function setWorkingText(card, text) {
+        card.querySelector('.step-status-text').textContent = text;
+      }
+
+      function updateProgress() {
+        const done = Object.values(steps).filter((c) => c.dataset.state === 'done').length;
+        el.progressText.textContent = done + ' / 4';
+        el.progressFill.style.width = (done / 4) * 100 + '%';
+        el.progressTrack.setAttribute('aria-valuenow', String(done));
+        el.ringFill.style.strokeDashoffset = String(100 - (done / 4) * 100);
+      }
+
+      function busyHint() {
+        toast('Lütfen devam eden işlemin bitmesini bekle…', 'info');
+      }
+
+      /* =========================================================
+         4. ANİMASYON DİZİLERİ
+         ========================================================= */
+      // Kabı etiketle: etiket yukarıdan süzülüp beherin etiket alanına yapışır
+      async function runLabelAnimation() {
+        await tween(el.label, [
+          { transform: 'translate(46px,-150px) rotate(-22deg) scale(1.2)', opacity: 0 },
+          { transform: 'translate(10px,-30px) rotate(-6deg) scale(1.08)', opacity: 1, offset: 0.55 },
+          { transform: 'translate(0px,2px) rotate(1.5deg) scale(0.97)', opacity: 1, offset: 0.8 },
+          { transform: 'translate(0px,0px) rotate(0deg) scale(1)', opacity: 1 }
+        ], 950, { easing: 'cubic-bezier(.22,.9,.3,1)' });
+        await tween(el.labelShine, [
+          { transform: 'translateX(0px)' }, { transform: 'translateX(140px)' }
+        ], 520, { easing: 'ease-in-out' });
+        el.labelShine.removeAttribute('style');
+      }
+
+      function countVolume(from, to, dur) {
+        const id = runId;
+        return new Promise((res, rej) => {
+          const t0 = performance.now();
+          const tick = (now) => {
+            if (id !== runId) return rej(ABORT);
+            const p = Math.min(1, (now - t0) / dur);
+            const e = 1 - Math.pow(1 - p, 2);
+            el.volText.textContent = Math.round(from + (to - from) * e) + ' mL';
+            if (p < 1) requestAnimationFrame(tick); else res();
+          };
+          requestAnimationFrame(tick);
+        });
+      }
+
+      // Madde A şişesinden behere düşen granül parçacıklar
+      function pourParticles(duration) {
+        const id = runId;
+        const count = 38;
+        const jobs = [];
+        for (let i = 0; i < count; i++) {
+          const delay = (i / count) * (duration - 760);
+          const c = svgEl('circle', {
+            cx: (585 + (Math.random() - 0.5) * 8).toFixed(1), cy: 132,
+            r: (2.2 + Math.random() * 1.4).toFixed(2), fill: 'url(#gPill)', stroke: 'rgba(148,163,184,0.5)', 'stroke-width': 0.4
+          }, el.fall);
+          const dx = 520 + Math.random() * 120 - 585;
+          const dy = 336 + Math.random() * 10 - 132;
+          const a = c.animate([
+            { transform: 'translate(0px,0px)', opacity: 0 },
+            { transform: `translate(${dx * 0.12}px,${dy * 0.06}px)`, opacity: 1, offset: 0.12 },
+            { transform: `translate(${dx}px,${dy}px)`, opacity: 1, offset: 0.92 },
+            { transform: `translate(${dx}px,${dy}px)`, opacity: 0 }
+          ], { duration: 640 + Math.random() * 220, delay, easing: 'cubic-bezier(.55,0,.85,.45)', fill: 'both' });
+          running.add(a);
+          const done = () => { running.delete(a); c.remove(); };
+          jobs.push(a.finished.then(done, done));
+        }
+        return Promise.all(jobs).then(() => { if (id !== runId) throw ABORT; });
+      }
+
+      // Çözeltiyi hazırla: su aktarımı → Madde A ekleme → karıştırma
+      async function runPrepareAnimation(card) {
+        const W_HOME = 'translate(0px,0px) rotate(0deg)';
+        const W_LIFT = 'translate(36px,-74px) rotate(22deg)';
+        const W_POUR = 'translate(141px,-129px) rotate(100deg)';
+        const J_HOME = 'translate(0px,0px) rotate(0deg)';
+        const J_LIFT = 'translate(110px,-120px) rotate(30deg)';
+        const J_POUR = 'translate(335px,-162px) rotate(115deg)';
+        const J_TAP = 'translate(335px,-158px) rotate(108deg)';
+        const R_HOME = 'translate(0px,0px) rotate(0deg)';
+        const R_UP = 'translate(0px,-46px) rotate(-8deg)';
+        const R_ABOVE = 'translate(151px,-270px) rotate(-80deg)';
+        const R_IN = 'translate(151px,-118px) rotate(-80deg)';
+        const R_L = 'translate(125px,-116px) rotate(-75deg)';
+        const R_R = 'translate(177px,-116px) rotate(-85deg)';
+        const CAP_ON = { transform: 'translate(0px,0px)', opacity: 1 };
+        const CAP_OFF = { transform: 'translate(0px,-34px)', opacity: 0 };
+
+        // --- A) SAF SU: 150 mL behere boşaltılır ---
+        setWorkingText(card, 'Saf su aktarılıyor…');
+        toast('Saf su behere aktarılıyor (150 mL)…', 'info');
+        await tween(el.waterCap, [CAP_ON, CAP_OFF], 420);
+        await tween(el.water, [{ transform: W_HOME }, { transform: W_LIFT, offset: 0.45 }, { transform: W_POUR }], 1150);
+        el.volTag.classList.add('is-on');
+        await tween(el.stream, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], 260, { easing: 'ease-in' });
+        el.streamFlow.classList.add('is-flowing');
+        await Promise.all([
+          tween(el.beakerFill, [{ transform: 'translate(0px,98px)' }, { transform: 'translate(0px,0px)' }], 2300, { easing: 'cubic-bezier(.3,.1,.3,1)' }),
+          tween(el.waterInner, [{ transform: 'translate(0px,0px)' }, { transform: 'translate(0px,64px)' }], 2300, { easing: 'linear' }),
+          countVolume(0, 150, 2300)
+        ]);
+        el.streamFlow.classList.remove('is-flowing');
+        await tween(el.stream, [{ strokeDashoffset: 0 }, { strokeDashoffset: -1 }], 300, { easing: 'ease-in' });
+        await tween(el.water, [{ transform: W_POUR }, { transform: W_LIFT, offset: 0.55 }, { transform: W_HOME }], 1050);
+        await tween(el.waterCap, [CAP_OFF, CAP_ON], 380);
+
+        // --- B) MADDE A: granüller suyun dibine çöker ---
+        setWorkingText(card, 'Madde A ekleniyor…');
+        toast('Madde A behere ekleniyor; granüller dibe çöküyor…', 'info');
+        await tween(el.jarCap, [CAP_ON, CAP_OFF], 420);
+        await tween(el.jar, [{ transform: J_HOME }, { transform: J_LIFT, offset: 0.45 }, { transform: J_POUR }], 1200);
+        await Promise.all([
+          pourParticles(1900),
+          tween(el.jar, [{ transform: J_POUR }, { transform: J_TAP }, { transform: J_POUR }, { transform: J_TAP }, { transform: J_POUR }], 1900, { easing: 'ease-in-out' }),
+          tween(el.pills, [{ transform: 'translate(0px,0px)' }, { transform: 'translate(0px,24px)' }], 1900, { easing: 'linear' }),
+          tween(el.sediment, [{ opacity: 0 }, { opacity: 1 }], 1500, { delay: 600 })
+        ]);
+        await tween(el.jar, [{ transform: J_POUR }, { transform: J_LIFT, offset: 0.55 }, { transform: J_HOME }], 1100);
+        await tween(el.jarCap, [CAP_OFF, CAP_ON], 380);
+
+        // --- C) KARIŞTIRMA: cam baget tepsiden alınır, çözelti homojenleşir ---
+        setWorkingText(card, 'Karıştırılıyor…');
+        toast('Cam baget ile karıştırılıyor…', 'info');
+        await tween(el.rod, [{ transform: R_HOME }, { transform: R_UP }], 420);
+        await tween(el.rod, [{ transform: R_UP }, { transform: R_ABOVE }], 950);
+        el.rodSlot.appendChild(el.rod); // beherin içine (ön camın arkasına) taşı
+        await tween(el.rod, [{ transform: R_ABOVE }, { transform: R_IN }], 650, { easing: 'cubic-bezier(.3,.6,.4,1)' });
+        el.beakerFill.classList.add('is-stirring');
+        await Promise.all([
+          tween(el.rod, [
+            { transform: R_IN }, { transform: R_L }, { transform: R_R }, { transform: R_L },
+            { transform: R_R }, { transform: R_L }, { transform: R_R }, { transform: R_IN }
+          ], 2500, { easing: 'ease-in-out' }),
+          tween(el.sediment, [{ opacity: 1 }, { opacity: 0 }], 2000, { delay: 300 }),
+          tween(el.tint, [{ opacity: 0 }, { opacity: 0.85 }], 2200, { delay: 200 })
+        ]);
+        el.beakerFill.classList.remove('is-stirring');
+        await tween(el.rod, [{ transform: R_IN }, { transform: R_ABOVE }], 620);
+        rodHome.appendChild(el.rod);
+        await tween(el.rod, [{ transform: R_ABOVE }, { transform: R_UP }], 950);
+        await tween(el.rod, [{ transform: R_UP }, { transform: R_HOME }], 420);
+      }
+
+      /* =========================================================
+         5. BUTON ETKİLEŞİMLERİ
+         ========================================================= */
+      steps.materials.addEventListener('click', () => {
+        if (state.busy) return busyHint();
+        replayClass(steps.materials, 'is-pop');
+        flash([items.jar, items.water, items.beaker], 'is-glow', 1500);
+        toast('3 malzeme masada: Madde A, Saf Su ve 250 mL dereceli beher.', 'success');
+      });
+
+      steps.workspace.addEventListener('click', () => {
+        if (state.busy) return busyHint();
+        replayClass(steps.workspace, 'is-pop');
+        replayClass(el.scan, 'is-scanning');
+        toast('Çalışma alanı temiz, düzenli ve kullanıma hazır.', 'success');
+      });
+
+      steps.label.addEventListener('click', async () => {
+        if (state.busy) return busyHint();
+        if (state.labeled) {
+          replayClass(steps.label, 'is-pop');
+          toast('Kap zaten etiketlendi.', 'info');
+          return;
+        }
+        const id = runId;
+        state.busy = true;
+        setStep(steps.label, 'working');
+        try {
+          await runLabelAnimation();
+          state.labeled = true;
+          setStep(steps.label, 'done');
+          replayClass(steps.label, 'is-pop');
+          setStep(steps.prepare, 'active');
+          updateProgress();
+          flash([items.beaker], 'is-glow', 1200);
+          toast('Beher etiketlendi: "Madde A Çözeltisi". Şimdi çözeltiyi hazırla.', 'success');
+          notifyParent({ type: 'hazirlikAdimTamamlandi', adim: 'kabiEtiketle' });
+        } catch (e) {
+          if (e !== ABORT) console.error(e);
+        } finally {
+          if (id === runId) state.busy = false;
+        }
+      });
+
+      steps.prepare.addEventListener('click', async () => {
+        if (state.busy) return busyHint();
+        if (!state.labeled) {
+          replayClass(steps.prepare, 'is-shake');
+          toast('Önce "Kabı Etiketle" adımını tamamlamalısın.', 'warn');
+          return;
+        }
+        if (state.prepared) {
+          replayClass(steps.prepare, 'is-pop');
+          toast('Çözelti zaten hazırlandı.', 'info');
+          return;
+        }
+        const id = runId;
+        state.busy = true;
+        setStep(steps.prepare, 'working');
+        try {
+          await runPrepareAnimation(steps.prepare);
+          state.prepared = true;
+          setStep(steps.prepare, 'done');
+          replayClass(steps.prepare, 'is-pop');
+          updateProgress();
+          flash([items.beaker], 'is-glow-green', 2200);
+          toast('Çözelti hazır! Tüm kontrol adımları tamamlandı.', 'success');
+          notifyParent({ type: 'hazirlikTamamlandi', hacim: 150 });
+        } catch (e) {
+          if (e !== ABORT) console.error(e);
+        } finally {
+          if (id === runId) state.busy = false;
+        }
+      });
+
+      /* =========================================================
+         6. SAHNEYİ GÖSTER / SIFIRLA
+         ========================================================= */
+      function showScene() {
+        if (scene.classList.contains('is-shown')) return;
+        $('#demo-trigger').hidden = true;
+        scene.classList.add('is-shown');          // display: none → block
+        scene.removeAttribute('aria-hidden');
+        void scene.offsetWidth;                    // reflow: geçiş animasyonunu garantile
+        requestAnimationFrame(() => scene.classList.add('is-visible')); // fade-in
+        if (!isEmbedded) $('#demo-reset-btn').hidden = false;
+        notifyParent({ type: 'hazirlikSahnesiAcildi' });
+      }
+
+      function resetScene(hide) {
+        runId++;
+        running.forEach((a) => a.cancel());
+        running.clear();
+        el.fall.replaceChildren();
+        if (el.rod.parentNode !== rodHome) rodHome.appendChild(el.rod);
+        ANIMATED.forEach((n) => { n.getAnimations().forEach((a) => a.cancel()); n.removeAttribute('style'); });
+        el.streamFlow.classList.remove('is-flowing');
+        el.beakerFill.classList.remove('is-stirring');
+        el.volTag.classList.remove('is-on');
+        el.volText.textContent = '0 mL';
+        Object.values(items).forEach((n) => n.classList.remove('is-glow', 'is-glow-green'));
+
+        state = { labeled: false, prepared: false, busy: false };
+        setStep(steps.materials, 'done');
+        setStep(steps.workspace, 'done');
+        setStep(steps.label, 'active');
+        setStep(steps.prepare, 'locked');
+        updateProgress();
+        el.toast.classList.remove('is-on');
+
+        if (hide) {
+          scene.classList.remove('is-visible', 'is-shown');
+          scene.setAttribute('aria-hidden', 'true');
+          if (!isEmbedded) {
+            $('#demo-trigger').hidden = false;
+            $('#demo-reset-btn').hidden = true;
+          }
+        }
+      }
+
+      /* =========================================================
+         7. ANA PROJE İLE İLETİŞİM ("Vardiyayı Onayla" sinyali)
+         - postMessage: 'vardiyayiOnayla' | { type: 'vardiyayiOnayla' }
+         - CustomEvent: document.dispatchEvent(new Event('vardiyayiOnayla'))
+         - Doğrudan çağrı: window.vardiyayiOnayla()
+         ========================================================= */
+      window.addEventListener('message', (e) => {
+        const d = e.data;
+        const type = typeof d === 'string' ? d : d && d.type;
+        if (type === 'vardiyayiOnayla') showScene();
+        else if (type === 'hazirlikSifirla') resetScene(true);
+      });
+      document.addEventListener('vardiyayiOnayla', showScene);
+      window.vardiyayiOnayla = showScene;
+      window.hazirlikSahnesiniSifirla = () => resetScene(true);
+
+      /* =========================================================
+         8. BAŞLANGIÇ
+         ========================================================= */
+      buildPeriodicTable();
+      buildCabinetDoors();
+      buildPills();
+      buildSediment();
+      el.labelDate.textContent = new Date().toLocaleDateString('tr-TR') + ' · Vardiya';
+      updateProgress();
+
+      if (!isEmbedded) {
+        $('#demo-trigger').hidden = false;
+        $('#demo-confirm-btn').addEventListener('click', showScene);
+        $('#demo-reset-btn').addEventListener('click', () => resetScene(true));
+      }
+
+      notifyParent({ type: 'hazirlikSahnesiHazir' });
+    })();
+  </script>
+</body>
+</html>
